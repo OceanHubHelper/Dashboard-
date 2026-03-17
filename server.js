@@ -18,7 +18,7 @@ return res.json({reply:"Missing HuggingFace API key"})
 }
 
 const response = await fetch(
-"https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
+"https://router.huggingface.co/hf-inference/models/meta-llama/Meta-Llama-3-8B-Instruct",
 {
 method:"POST",
 headers:{
@@ -33,11 +33,10 @@ inputs: message
 
 const data = await response.json()
 
-console.log("HF RAW RESPONSE:",data)
+console.log("HF RESPONSE:",data)
 
 let reply = "AI failed"
 
-// handle most HuggingFace response formats
 if(Array.isArray(data) && data[0]?.generated_text){
 reply = data[0].generated_text
 }
