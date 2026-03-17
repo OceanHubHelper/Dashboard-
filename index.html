@@ -2,7 +2,6 @@
 <html>
 <head>
 <title>Home Dashboard</title>
-
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -10,30 +9,25 @@
 body{
 margin:0;
 font-family:-apple-system,BlinkMacSystemFont,Arial;
-background:#0a0a0a;
-color:white;
+background:#1a1a1a;
+color:#e5e5e5;
 }
 
-/* main container */
+/* container */
 
 .container{
-
 width:95%;
 max-width:1000px;
 height:92vh;
-
 margin:auto;
 margin-top:4vh;
-
-background:#111;
+background:#222;
 border-radius:20px;
-
 display:flex;
 flex-direction:column;
-
 padding:20px;
 box-sizing:border-box;
-
+box-shadow:0 0 40px rgba(0,0,0,0.5);
 }
 
 /* header */
@@ -42,7 +36,7 @@ box-sizing:border-box;
 display:flex;
 justify-content:space-between;
 align-items:center;
-font-size:24px;
+font-size:22px;
 margin-bottom:10px;
 }
 
@@ -54,8 +48,33 @@ gap:10px;
 margin-bottom:10px;
 }
 
-.nav button{
-flex:1;
+/* buttons */
+
+button{
+
+padding:10px 16px;
+border:none;
+border-radius:12px;
+
+background:linear-gradient(135deg,#3a3a3a,#2a2a2a);
+color:#e5e5e5;
+
+cursor:pointer;
+
+transition:0.25s;
+
+box-shadow:0 3px 10px rgba(0,0,0,0.3);
+
+}
+
+button:hover{
+
+transform:translateY(-2px) scale(1.05);
+
+background:linear-gradient(135deg,#505050,#3a3a3a);
+
+box-shadow:0 5px 20px rgba(0,0,0,0.5);
+
 }
 
 /* panels */
@@ -73,49 +92,92 @@ display:block;
 /* chat */
 
 .chat{
-height:350px;
+
+height:380px;
+
 overflow:auto;
-background:#0d0d0d;
+
+padding:12px;
+
+background:#1e1e1e;
+
 border-radius:12px;
-padding:10px;
+
+display:flex;
+flex-direction:column;
+
 }
 
+/* message */
+
 .msg{
-padding:10px;
-margin:5px 0;
-border-radius:10px;
+
+padding:10px 14px;
+
+margin:6px 0;
+
+border-radius:14px;
+
 max-width:75%;
+
+line-height:1.4;
+
 }
 
 .user{
-background:#0077ff;
+background:#3b5cff;
+color:white;
 margin-left:auto;
 }
 
 .ai{
-background:#333;
+background:#3a3a3a;
 }
 
-/* inputs */
+/* input */
+
+.inputArea{
+
+display:flex;
+
+gap:10px;
+
+margin-top:10px;
+
+}
 
 input,textarea{
+
 width:100%;
+
 padding:12px;
+
 border:none;
+
 border-radius:12px;
-margin-top:8px;
-font-size:16px;
+
+background:#2a2a2a;
+
+color:white;
+
 }
 
-/* buttons */
+/* scroll button */
 
-button{
-padding:10px 14px;
-border:none;
-border-radius:12px;
-background:#00aaff;
-color:white;
-cursor:pointer;
+.scrollBtn{
+
+position:absolute;
+
+right:30px;
+
+bottom:120px;
+
+padding:8px 12px;
+
+font-size:14px;
+
+display:none;
+
 }
 
 /* login */
@@ -130,9 +192,8 @@ top:50%;
 left:50%;
 transform:translate(-50%,-50%);
 
-background:#111;
+background:#222;
 padding:25px;
-
 border-radius:20px;
 
 }
@@ -141,14 +202,20 @@ border-radius:20px;
 display:none;
 }
 
-/* output */
+/* code runner */
 
 .output{
-background:#000;
+
+background:#111;
+
 padding:10px;
+
 border-radius:10px;
+
 margin-top:10px;
-min-height:50px;
+
+min-height:40px;
+
 }
 
 </style>
@@ -177,7 +244,7 @@ min-height:50px;
 </div>
 
 
-<!-- HOME DASHBOARD -->
+<!-- DASHBOARD -->
 
 <div class="container hidden" id="app">
 
@@ -203,13 +270,19 @@ Home Dashboard
 
 <div class="chat" id="chat"></div>
 
-<input id="aiInput" placeholder="Ask AI something...">
+<button class="scrollBtn" id="scrollBtn" onclick="scrollDown()">⬇ Latest</button>
+
+<div class="inputArea">
+
+<input id="aiInput" placeholder="Message AI...">
 
 <button onclick="send()">Send</button>
 
 </div>
 
-<!-- NOTES PANEL -->
+</div>
+
+<!-- NOTES -->
 
 <div class="panel" id="notes">
 
@@ -217,7 +290,7 @@ Home Dashboard
 
 <textarea id="notesBox" rows="12"></textarea>
 
-<button onclick="saveNotes()">Save Notes</button>
+<button onclick="saveNotes()">Save</button>
 
 </div>
 
@@ -229,7 +302,7 @@ Home Dashboard
 
 <textarea id="code" rows="10">print(2)</textarea>
 
-<button onclick="runCode()">Output</button>
+<button onclick="runCode()">Run</button>
 
 <div class="output" id="output"></div>
 
@@ -242,11 +315,12 @@ Home Dashboard
 
 let username=""
 
-/* panel switching */
+/* panels */
 
 function showPanel(id){
 
 document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"))
+
 document.getElementById(id).classList.add("active")
 
 }
@@ -264,10 +338,7 @@ method:"POST",
 
 headers:{"Content-Type":"application/json"},
 
-body:JSON.stringify({
-username:u,
-password:p
-})
+body:JSON.stringify({username:u,password:p})
 
 })
 
@@ -291,10 +362,7 @@ method:"POST",
 
 headers:{"Content-Type":"application/json"},
 
-body:JSON.stringify({
-username:u,
-password:p
-})
+body:JSON.stringify({username:u,password:p})
 
 })
 
@@ -321,7 +389,7 @@ function logout(){
 location.reload()
 }
 
-/* chat */
+/* add message */
 
 function addMessage(text,type){
 
@@ -332,12 +400,43 @@ msg.innerText=text
 
 document.getElementById("chat").appendChild(msg)
 
-document.getElementById("chat").scrollTop=
-document.getElementById("chat").scrollHeight
+autoScroll()
 
 }
 
-/* AI send */
+/* auto scroll */
+
+function autoScroll(){
+
+let chat=document.getElementById("chat")
+
+if(chat.scrollHeight-chat.scrollTop-chat.clientHeight<100){
+
+chat.scrollTop=chat.scrollHeight
+
+document.getElementById("scrollBtn").style.display="none"
+
+}else{
+
+document.getElementById("scrollBtn").style.display="block"
+
+}
+
+}
+
+/* scroll button */
+
+function scrollDown(){
+
+let chat=document.getElementById("chat")
+
+chat.scrollTop=chat.scrollHeight
+
+document.getElementById("scrollBtn").style.display="none"
+
+}
+
+/* send */
 
 async function send(){
 
@@ -380,7 +479,7 @@ alert("Saved")
 }
 
 document.getElementById("notesBox").value=
-localStorage.getItem("notes") || ""
+localStorage.getItem("notes")||""
 
 /* code runner */
 
@@ -391,8 +490,6 @@ let code=document.getElementById("code").value
 let output=""
 
 try{
-
-/* simple python-style print */
 
 let match=code.match(/print\((.*?)\)/)
 
