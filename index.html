@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>Future Dashboard</title>
@@ -8,34 +8,15 @@
 
 body{
 margin:0;
-font-family:Arial, Helvetica, sans-serif;
-background: radial-gradient(circle at top, #0f2027, #050505);
+font-family:Arial;
+background:radial-gradient(circle,#0f2027,#000);
 color:white;
 overflow:hidden;
 }
 
-/* animated background */
-body::before{
-content:"";
-position:absolute;
-width:200%;
-height:200%;
-background: repeating-linear-gradient(
-90deg,
-rgba(0,255,255,0.05) 0px,
-rgba(0,255,255,0.05) 2px,
-transparent 2px,
-transparent 50px
-);
-animation: moveGrid 10s linear infinite;
-}
+/* center containers */
 
-@keyframes moveGrid{
-0%{transform:translate(0,0);}
-100%{transform:translate(-200px,-200px);}
-}
-
-.container{
+.center{
 position:absolute;
 top:50%;
 left:50%;
@@ -47,41 +28,49 @@ text-align:center;
 
 .title{
 font-size:50px;
-letter-spacing:4px;
-background: linear-gradient(90deg,#00f7ff,#00ffb3,#00f7ff);
+background:linear-gradient(90deg,#00f7ff,#00ffb3,#00f7ff);
 background-size:200%;
 -webkit-background-clip:text;
 color:transparent;
-animation: glowText 4s linear infinite;
+animation:glow 4s linear infinite;
 }
 
-@keyframes glowText{
+@keyframes glow{
 0%{background-position:0%}
 100%{background-position:200%}
 }
 
-/* button style */
+/* inputs */
+
+input{
+padding:12px;
+margin:10px;
+border:none;
+border-radius:10px;
+width:220px;
+}
+
+/* buttons */
 
 button{
-
-margin:15px;
-padding:15px 40px;
-font-size:18px;
+padding:12px 30px;
 border:none;
-border-radius:12px;
+border-radius:10px;
+background:linear-gradient(45deg,#00c6ff,#0072ff);
 color:white;
 cursor:pointer;
-
-background:linear-gradient(45deg,#00c6ff,#0072ff);
-box-shadow:0 0 15px #00c6ff;
-
-transition:all .3s;
+transition:.3s;
 }
 
 button:hover{
-
 transform:scale(1.1);
-box-shadow:0 0 25px #00c6ff,0 0 60px #00c6ff;
+box-shadow:0 0 20px #00c6ff;
+}
+
+/* dashboard */
+
+#dashboard{
+display:none;
 }
 
 /* panels */
@@ -94,20 +83,11 @@ left:50%;
 transform:translate(-50%,-50%);
 width:70%;
 height:70%;
-background:rgba(0,0,0,0.7);
-backdrop-filter:blur(20px);
+background:rgba(0,0,0,.8);
 border-radius:20px;
 padding:20px;
-box-shadow:0 0 40px #00ffff;
+box-shadow:0 0 30px cyan;
 overflow:auto;
-}
-
-.close{
-position:absolute;
-right:20px;
-top:20px;
-cursor:pointer;
-font-size:20px;
 }
 
 textarea{
@@ -116,7 +96,6 @@ height:200px;
 background:#111;
 color:#00ffff;
 border:none;
-padding:10px;
 }
 
 .output{
@@ -131,7 +110,23 @@ color:#0f0;
 
 <body>
 
-<div class="container">
+<!-- LOGIN -->
+
+<div class="center" id="login">
+
+<div class="title">LOGIN</div>
+
+<input id="user" placeholder="Username"><br>
+<input id="pass" type="password" placeholder="Password"><br>
+
+<button onclick="login()">Enter</button>
+
+</div>
+
+
+<!-- DASHBOARD -->
+
+<div id="dashboard" class="center">
 
 <div class="title">FUTURE DASHBOARD</div>
 
@@ -140,31 +135,28 @@ color:#0f0;
 <button onclick="openPanel('ai')">AI</button>
 <button onclick="openPanel('notes')">Notes</button>
 <button onclick="openPanel('scripts')">Script Runner</button>
-<button onclick="openPanel('terminal')">Terminal</button>
 
 </div>
+
 
 <!-- AI PANEL -->
 
 <div class="panel" id="ai">
 
-<div class="close" onclick="closePanel('ai')">X</div>
-
 <h2>AI Assistant</h2>
 
-<input id="aiInput" placeholder="Ask something..." style="width:80%;padding:10px">
+<input id="aiInput" placeholder="Ask AI..." style="width:70%">
 
-<button onclick="fakeAI()">Ask</button>
+<button onclick="askAI()">Ask</button>
 
 <div id="aiOutput"></div>
 
 </div>
 
+
 <!-- NOTES -->
 
 <div class="panel" id="notes">
-
-<div class="close" onclick="closePanel('notes')">X</div>
 
 <h2>Notes</h2>
 
@@ -174,49 +166,69 @@ color:#0f0;
 
 </div>
 
+
 <!-- SCRIPT RUNNER -->
 
 <div class="panel" id="scripts">
 
-<div class="close" onclick="closePanel('scripts')">X</div>
+<h2>Script Runner</h2>
 
-<h2>Script Runner (JavaScript)</h2>
-
-<textarea id="code">
-console.log("Hello World")
-</textarea>
+<textarea id="code">console.log("Hello world")</textarea>
 
 <button onclick="runCode()">Run</button>
 
-<div class="output" id="output"></div>
+<div id="output"></div>
 
 </div>
 
-<!-- TERMINAL -->
-
-<div class="panel" id="terminal">
-
-<div class="close" onclick="closePanel('terminal')">X</div>
-
-<h2>Fake Terminal</h2>
-
-<input id="termInput" placeholder="type command">
-
-<button onclick="runCommand()">Run</button>
-
-<div id="termOutput"></div>
-
-</div>
 
 <script>
 
-function openPanel(id){
-document.getElementById(id).style.display="block"
+/* login system */
+
+const USERNAME="admin"
+const PASSWORD="1234"
+
+function login(){
+
+let u=document.getElementById("user").value
+let p=document.getElementById("pass").value
+
+if(u===USERNAME && p===PASSWORD){
+
+document.getElementById("login").style.display="none"
+document.getElementById("dashboard").style.display="block"
+
+}else{
+
+alert("Wrong login")
+
 }
 
-function closePanel(id){
-document.getElementById(id).style.display="none"
 }
+
+/* open panel */
+
+function openPanel(id){
+
+document.getElementById(id).style.display="block"
+
+}
+
+/* notes */
+
+function saveNotes(){
+
+localStorage.setItem("notes",
+document.getElementById("notesBox").value)
+
+}
+
+document.getElementById("notesBox").value=
+localStorage.getItem("notes")||""
+
+
+/* script runner */
 
 function runCode(){
 
@@ -236,33 +248,24 @@ document.getElementById("output").innerText=e
 
 }
 
-function saveNotes(){
 
-localStorage.setItem("notes",
-document.getElementById("notesBox").value)
+/* REAL AI */
 
-alert("saved")
+async function askAI(){
 
-}
+let input=document.getElementById("aiInput").value
 
-document.getElementById("notesBox").value=
-localStorage.getItem("notes")||""
+document.getElementById("aiOutput").innerText="Thinking..."
 
-function fakeAI(){
+let res=await fetch("/ai",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({message:input})
+})
 
-let q=document.getElementById("aiInput").value
+let data=await res.json()
 
-document.getElementById("aiOutput").innerText=
-"AI: thinking about '"+q+"'..."
-
-}
-
-function runCommand(){
-
-let cmd=document.getElementById("termInput").value
-
-document.getElementById("termOutput").innerHTML+=
-"> "+cmd+"<br>ACCESSING SYSTEM...<br>"
+document.getElementById("aiOutput").innerText=data.reply
 
 }
 
