@@ -7,160 +7,181 @@
 
 <link rel="stylesheet" href="/styles.css">
 
-<style>
-
-.centerPage{
-height:100vh;
-display:flex;
-align-items:center;
-justify-content:center;
-background:#111;
-}
-
-.loginBox{
-background:#1e1e1e;
-padding:40px;
-border-radius:16px;
-width:320px;
-}
-
-.hidden{
-display:none;
-}
-
-.tosLink{
-font-weight:bold;
-cursor:pointer;
-}
-
-</style>
-
 </head>
 
 <body>
 
-<!-- SIGN IN PAGE -->
+<canvas id="particles"></canvas>
 
-<div id="loginPage" class="centerPage">
+<!-- SIDEBAR -->
 
-<div class="loginBox">
-
-<h2>Sign In</h2>
-
-<input id="loginUser" placeholder="Username">
-
-<input id="loginPass" type="password" placeholder="Password">
-
-<button onclick="login()">Sign In</button>
-
-<p onclick="showSignup()" style="cursor:pointer;margin-top:15px">
-Create account
-</p>
-
-</div>
-
-</div>
-
-<!-- SIGNUP PAGE -->
-
-<div id="signupPage" class="centerPage hidden">
-
-<div class="loginBox">
-
-<h2>Create Account</h2>
-
-<input id="signupUser" placeholder="Username">
-
-<input id="signupPass" type="password" placeholder="Password">
-
-<label>
-<input type="checkbox" id="termsCheck">
-I agree to the <span class="tosLink" onclick="showTerms()">Terms of Service</span>
-</label>
-
-<button onclick="signup()">Create Account</button>
-
-<p onclick="showLogin()" style="cursor:pointer;margin-top:15px">
-Back to login
-</p>
-
-</div>
-
-</div>
-
-<!-- TERMS MODAL -->
-
-<div id="termsModal" class="centerPage hidden">
-
-<div class="loginBox">
-
-<h3>Terms of Service</h3>
-
-<p style="font-size:14px;line-height:1.6">
-
-By using this dashboard you agree to use the platform responsibly.
-The AI tools provided may generate automated responses and scripts.
-
-You agree not to exploit, abuse, overload, or misuse the platform.
-
-This software is experimental and no guarantees are provided
-for generated content or scripts.
-
-</p>
-
-<button onclick="closeTerms()">Close</button>
-
-</div>
-
-</div>
-
-<!-- DASHBOARD -->
-
-<div id="dashboard" class="app hidden">
+<div class="sidebar">
 
 <h2>AI Dashboard</h2>
 
-<div class="nav">
-
-<button onclick="showPanel('ai')">AI</button>
-<button onclick="showPanel('code')">Code</button>
+<button onclick="showPanel('ai')">AI Chat</button>
+<button onclick="showPanel('code')">Script Builder</button>
+<button onclick="showPanel('roblox')">Roblox Tools</button>
 <button onclick="showPanel('notes')">Notes</button>
-<button onclick="showPanel('roblox')">Roblox</button>
+<button onclick="showPanel('files')">Files</button>
+<button onclick="showPanel('devtools')">Dev Tools</button>
 <button onclick="showPanel('settings')">Settings</button>
 
 </div>
+
+<!-- MAIN -->
+
+<div class="main">
+
+<!-- AI CHAT -->
 
 <div class="panel active" id="ai">
 
 <div class="chat" id="chat"></div>
 
+<div class="chatControls">
+
 <input id="aiInput" placeholder="Ask AI">
 
 <button onclick="send()">Send</button>
+<button onclick="regenerate()">Regenerate</button>
+<button onclick="clearChat()">Clear</button>
 
 </div>
+
+</div>
+
+<!-- SCRIPT BUILDER -->
 
 <div class="panel" id="code">
 
+<h2>Script Builder</h2>
+
+<div class="scriptLayout">
+
+<div class="editor">
+
 <textarea id="codeArea">print("hello")</textarea>
 
+<div class="editorButtons">
+
+<button onclick="runCode()">Run</button>
+<button onclick="copyCode()">Copy</button>
+<button onclick="formatCode()">Format</button>
+<button onclick="explainCode()">Explain</button>
+
 </div>
 
-<div class="panel" id="notes">
-
-<textarea id="notesBox"></textarea>
+<div id="output"></div>
 
 </div>
+
+<div class="scriptAI">
+
+<h3>AI Script Helper</h3>
+
+<div id="scriptChat"></div>
+
+<input id="scriptInput" placeholder="Ask AI about the script">
+
+<button onclick="askScriptAI()">Ask AI</button>
+
+</div>
+
+</div>
+
+<h3>Previous Code</h3>
+
+<div id="history"></div>
+
+<button onclick="toggleHistory()">View All</button>
+
+</div>
+
+<!-- ROBLOX -->
 
 <div class="panel" id="roblox">
 
+<h2>Roblox Tools</h2>
+
+<div class="robloxButtons">
+
 <button onclick="rbPlayer()">Player Lookup</button>
+<button onclick="rbAvatar()">Avatar Viewer</button>
+<button onclick="rbGame()">Game Search</button>
+<button onclick="rbServers()">Server Finder</button>
+<button onclick="rbBadges()">Badge Viewer</button>
+
+</div>
 
 <div id="rbPanel"></div>
 
 </div>
 
+<!-- NOTES -->
+
+<div class="panel" id="notes">
+
+<h2>Notes</h2>
+
+<textarea id="notesBox"></textarea>
+
+<div>
+
+<button onclick="saveNotes()">Save</button>
+<button onclick="exportNotes()">Export</button>
+<button onclick="resetNotes()">Reset</button>
+
+</div>
+
+</div>
+
+<!-- FILES -->
+
+<div class="panel" id="files">
+
+<h2>File Upload</h2>
+
+<input type="file" id="fileInput">
+
+<button onclick="uploadFile()">Upload</button>
+
+<h3>Files</h3>
+
+<div id="fileList"></div>
+
+</div>
+
+<!-- DEV TOOLS -->
+
+<div class="panel" id="devtools">
+
+<h2>Developer Tools</h2>
+
+<h3>Console</h3>
+
+<div id="console"></div>
+
+<h3>API Tester</h3>
+
+<input id="apiUrl" placeholder="API URL">
+
+<button onclick="testAPI()">Send Request</button>
+
+<pre id="apiResult"></pre>
+
+</div>
+
+<!-- SETTINGS -->
+
 <div class="panel" id="settings">
+
+<h2>Settings</h2>
+
+<button onclick="toggleTheme()">Dark / Light</button>
+<button onclick="toggleParticles()">Particles</button>
+<button onclick="toggleAnimations()">Animations</button>
+<button onclick="performanceMode()">Performance Mode</button>
 
 <button onclick="logout()">Logout</button>
 
@@ -171,124 +192,6 @@ for generated content or scripts.
 <script src="/dashboard.js"></script>
 <script src="/ai.js"></script>
 <script src="/roblox.js"></script>
-
-<script>
-
-/* PAGE SWITCHING */
-
-function showSignup(){
-
-loginPage.classList.add("hidden")
-
-signupPage.classList.remove("hidden")
-
-}
-
-function showLogin(){
-
-signupPage.classList.add("hidden")
-
-loginPage.classList.remove("hidden")
-
-}
-
-/* TERMS */
-
-function showTerms(){
-
-termsModal.classList.remove("hidden")
-
-}
-
-function closeTerms(){
-
-termsModal.classList.add("hidden")
-
-}
-
-/* LOGIN */
-
-async function login(){
-
-let res=await fetch("/login",{
-
-method:"POST",
-
-headers:{"Content-Type":"application/json"},
-
-body:JSON.stringify({
-
-username:loginUser.value,
-
-password:loginPass.value
-
-})
-
-})
-
-let data=await res.json()
-
-if(data.error){
-
-alert(data.error)
-
-return
-
-}
-
-/* hide login */
-
-loginPage.classList.add("hidden")
-
-/* show dashboard */
-
-dashboard.classList.remove("hidden")
-
-}
-
-/* SIGNUP */
-
-async function signup(){
-
-if(!termsCheck.checked){
-
-alert("You must agree to the Terms of Service")
-
-return
-
-}
-
-let res=await fetch("/signup",{
-
-method:"POST",
-
-headers:{"Content-Type":"application/json"},
-
-body:JSON.stringify({
-
-username:signupUser.value,
-
-password:signupPass.value
-
-})
-
-})
-
-let data=await res.json()
-
-alert("Account created")
-
-showLogin()
-
-}
-
-function logout(){
-
-location.reload()
-
-}
-
-</script>
 
 </body>
 </html>
