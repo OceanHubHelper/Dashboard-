@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Home Dashboard</title>
 
@@ -14,49 +13,29 @@ background:#1b1b1b;
 color:#e6e6e6;
 }
 
-/* particle background */
-
-canvas{
-position:fixed;
-top:0;
-left:0;
-z-index:-1;
-}
-
 /* dashboard */
 
 .app{
-
 width:95%;
 max-width:1000px;
 height:92vh;
-
 margin:auto;
 margin-top:4vh;
-
 background:#262626;
-
 border-radius:20px;
-
 display:flex;
 flex-direction:column;
-
 padding:20px;
-
 box-shadow:0 0 40px rgba(0,0,0,0.5);
-
 }
 
 /* header */
 
 .header{
-
 display:flex;
 justify-content:space-between;
 align-items:center;
-
 font-size:22px;
-
 }
 
 /* nav */
@@ -65,34 +44,24 @@ font-size:22px;
 display:flex;
 gap:10px;
 margin:10px 0;
+flex-wrap:wrap;
 }
 
 /* buttons */
 
 button{
-
 padding:10px 16px;
-
 border:none;
-
 border-radius:12px;
-
 background:linear-gradient(135deg,#444,#333);
-
 color:white;
-
 cursor:pointer;
-
 transition:.25s;
-
 }
 
 button:hover{
-
 transform:scale(1.05);
-
 background:linear-gradient(135deg,#666,#444);
-
 }
 
 /* panels */
@@ -110,34 +79,20 @@ display:block;
 /* chat */
 
 .chat{
-
-height:360px;
-
+height:300px;
 overflow:auto;
-
 background:#1c1c1c;
-
 border-radius:12px;
-
 padding:10px;
-
 display:flex;
 flex-direction:column;
-
 }
 
-/* messages */
-
 .msg{
-
 padding:10px;
-
 margin:6px 0;
-
 border-radius:12px;
-
 max-width:75%;
-
 }
 
 .user{
@@ -152,34 +107,22 @@ background:#3a3a3a;
 /* inputs */
 
 input,textarea{
-
 width:100%;
-
 padding:12px;
-
 border:none;
-
 border-radius:12px;
-
 background:#333;
-
 color:white;
-
+margin-top:8px;
 }
 
-/* input area */
+/* tools grid */
 
-.inputArea{
-display:flex;
+.tools{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
 gap:10px;
-margin-top:10px;
-}
-
-/* account */
-
-.accountBox{
-max-width:400px;
-margin:auto;
+margin-bottom:10px;
 }
 
 </style>
@@ -187,14 +130,10 @@ margin:auto;
 
 <body>
 
-<canvas id="particles"></canvas>
-
 <div class="app">
 
 <div class="header">
-
 Home Dashboard
-
 </div>
 
 <div class="nav">
@@ -203,6 +142,7 @@ Home Dashboard
 <button onclick="showPanel('notes')">Notes</button>
 <button onclick="showPanel('runner')">Code</button>
 <button onclick="showPanel('files')">Files</button>
+<button onclick="showPanel('roblox')">Roblox</button>
 <button onclick="showPanel('account')">Account</button>
 <button onclick="showPanel('settings')">Settings</button>
 
@@ -214,13 +154,9 @@ Home Dashboard
 
 <div class="chat" id="chat"></div>
 
-<div class="inputArea">
-
-<input id="aiInput" placeholder="Message AI...">
+<input id="aiInput" placeholder="Ask AI...">
 
 <button onclick="send()">Send</button>
-
-</div>
 
 </div>
 
@@ -236,7 +172,7 @@ Home Dashboard
 
 </div>
 
-<!-- CODE -->
+<!-- CODE RUNNER -->
 
 <div class="panel" id="runner">
 
@@ -256,17 +192,34 @@ Home Dashboard
 
 <h3>Upload Files</h3>
 
-<input type="file" id="fileInput">
+<input type="file">
 
-<div id="fileList"></div>
+</div>
+
+<!-- ROBLOX TAB -->
+
+<div class="panel" id="roblox">
+
+<h2>Roblox Tools</h2>
+
+<div class="tools">
+
+<button onclick="rbTool('player')">Player Lookup</button>
+<button onclick="rbTool('avatar')">Avatar Viewer</button>
+<button onclick="rbTool('game')">Game Info</button>
+<button onclick="rbTool('servers')">Server Finder</button>
+<button onclick="rbTool('badges')">Badge Viewer</button>
+<button onclick="rbTool('scripts')">Script Builder</button>
+
+</div>
+
+<div id="rbPanel"></div>
 
 </div>
 
 <!-- ACCOUNT -->
 
 <div class="panel" id="account">
-
-<div class="accountBox">
 
 <h3>Login</h3>
 
@@ -284,8 +237,6 @@ Home Dashboard
 
 </div>
 
-</div>
-
 <!-- SETTINGS -->
 
 <div class="panel" id="settings">
@@ -293,7 +244,6 @@ Home Dashboard
 <h3>Settings</h3>
 
 <button onclick="toggleTheme()">Toggle Theme</button>
-
 <button onclick="clearChat()">Clear Chat</button>
 
 </div>
@@ -304,14 +254,11 @@ Home Dashboard
 
 let username=""
 
-/* panels */
+/* panel switch */
 
 function showPanel(id){
-
 document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"))
-
 document.getElementById(id).classList.add("active")
-
 }
 
 /* chat */
@@ -330,8 +277,6 @@ chat.scrollTop=chat.scrollHeight
 
 }
 
-/* send */
-
 async function send(){
 
 let text=aiInput.value
@@ -345,9 +290,7 @@ aiInput.value=""
 let res=await fetch("/ai",{
 
 method:"POST",
-
 headers:{"Content-Type":"application/json"},
-
 body:JSON.stringify({
 username:username,
 message:text
@@ -361,68 +304,12 @@ addMessage(data.reply,"ai")
 
 }
 
-/* login */
-
-async function login(){
-
-let u=loginUser.value
-let p=loginPass.value
-
-let res=await fetch("/login",{
-
-method:"POST",
-
-headers:{"Content-Type":"application/json"},
-
-body:JSON.stringify({username:u,password:p})
-
-})
-
-let data=await res.json()
-
-if(data.error) alert(data.error)
-else{
-
-username=u
-
-alert("Logged in")
-
-}
-
-}
-
-/* signup */
-
-async function signup(){
-
-let u=signUser.value
-let p=signPass.value
-
-let res=await fetch("/signup",{
-
-method:"POST",
-
-headers:{"Content-Type":"application/json"},
-
-body:JSON.stringify({username:u,password:p})
-
-})
-
-let data=await res.json()
-
-if(data.error) alert(data.error)
-else alert("Account created")
-
-}
-
 /* notes */
 
 notesBox.value=localStorage.getItem("notes")||""
 
 function saveNotes(){
-
 localStorage.setItem("notes",notesBox.value)
-
 }
 
 /* code runner */
@@ -446,61 +333,103 @@ catch(e){output.innerText=e}
 
 }
 
-/* settings */
+/* roblox tools */
+
+function rbTool(tool){
+
+let panel=document.getElementById("rbPanel")
+
+if(tool==="player"){
+
+panel.innerHTML=`
+
+<h3>Player Lookup</h3>
+<input id="rbUser" placeholder="Username">
+<button onclick="lookupPlayer()">Search</button>
+<div id="rbResult"></div>
+
+`
+
+}
+
+if(tool==="avatar"){
+
+panel.innerHTML=`
+
+<h3>Avatar Viewer</h3>
+<input id="rbAvatar" placeholder="Username">
+<button onclick="viewAvatar()">View</button>
+<div id="rbAvatarResult"></div>
+
+`
+
+}
+
+if(tool==="game"){
+
+panel.innerHTML=`
+
+<h3>Game Info</h3>
+<input id="rbGame" placeholder="Game ID">
+<button onclick="gameInfo()">Search</button>
+<div id="rbGameResult"></div>
+
+`
+
+}
+
+if(tool==="servers"){
+
+panel.innerHTML=`
+
+<h3>Server Finder</h3>
+<input id="rbServerGame" placeholder="Game ID">
+<button onclick="serverFind()">Find Servers</button>
+<div id="rbServerResult"></div>
+
+`
+
+}
+
+if(tool==="badges"){
+
+panel.innerHTML=`
+
+<h3>Badge Viewer</h3>
+<input id="rbBadgeGame" placeholder="Game ID">
+<button onclick="badgeSearch()">Search</button>
+<div id="rbBadgeResult"></div>
+
+`
+
+}
+
+if(tool==="scripts"){
+
+panel.innerHTML=`
+
+<h3>Script Builder</h3>
+<textarea placeholder="Write your Roblox Lua script"></textarea>
+<button>Save</button>
+<button>Copy</button>
+
+`
+
+}
+
+}
+
+/* theme */
 
 function toggleTheme(){
 document.body.classList.toggle("light")
 }
 
+/* clear chat */
+
 function clearChat(){
 chat.innerHTML=""
 }
-
-/* particles */
-
-const canvas=document.getElementById("particles")
-const ctx=canvas.getContext("2d")
-
-canvas.width=window.innerWidth
-canvas.height=window.innerHeight
-
-let particles=[]
-
-for(let i=0;i<80;i++){
-
-particles.push({
-
-x:Math.random()*canvas.width,
-y:Math.random()*canvas.height,
-r:Math.random()*2+1,
-dx:Math.random()-0.5,
-dy:Math.random()-0.5
-
-})
-
-}
-
-function animate(){
-
-ctx.clearRect(0,0,canvas.width,canvas.height)
-
-particles.forEach(p=>{
-
-ctx.beginPath()
-ctx.arc(p.x,p.y,p.r,0,Math.PI*2)
-ctx.fillStyle="#555"
-ctx.fill()
-
-p.x+=p.dx
-p.y+=p.dy
-
-})
-
-requestAnimationFrame(animate)
-
-}
-
-animate()
 
 </script>
 
