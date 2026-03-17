@@ -5,64 +5,56 @@ const app = express()
 app.use(express.json())
 app.use(express.static("."))
 
-const API_KEY = process.env.OPENAI_API_KEY
+const HF_API_KEY = process.env.HF_API_KEY
 
-// AI endpoint
-app.post("/ai", async (req, res) => {
+app.post("/ai", async (req,res)=>{
 
-try {
+try{
 
 const message = req.body.message
 
-if (!API_KEY) {
-return res.json({ reply: "API key missing. Add OPENAI_API_KEY in Railway variables." })
+if(!HF_API_KEY){
+return res.json({reply:"Missing HuggingFace API key"})
 }
 
-const response = await fetch("https://api.openai.com/v1/chat/completions", {
-
-method: "POST",
-
-headers: {
-"Content-Type": "application/json",
-"Authorization": "Bearer " + API_KEY
+const response = await fetch(
+"https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
+{
+method:"POST",
+headers:{
+"Authorization":"Bearer "+HF_API_KEY,
+"Content-Type":"application/json"
 },
-
-body: JSON.stringify({
-model: "gpt-4o-mini",
-messages: [
-{ role: "user", content: message }
-]
+body:JSON.stringify({
+inputs: message
 })
-
-})
+}
+)
 
 const data = await response.json()
 
-console.log("AI RESPONSE:", data)
+console.log("HF RESPONSE:",data)
 
-// handle API errors
-if (data.error) {
-return res.json({ reply: "AI API Error: " + data.error.message })
+let reply = "AI failed"
+
+if(Array.isArray(data) && data[0]?.generated_text){
+reply = data[0].generated_text
 }
 
-const reply = data?.choices?.[0]?.message?.content || "AI returned empty response"
+res.json({reply})
 
-res.json({ reply })
+}catch(err){
 
-} catch (error) {
+console.log("SERVER ERROR:",err)
 
-console.log("SERVER ERROR:", error)
-
-res.json({ reply: "Server crashed. Check Railway logs." })
+res.json({reply:"Server error"})
 
 }
 
 })
 
-
-// server start
 const PORT = process.env.PORT || 8080
 
-app.listen(PORT, () => {
-console.log("Server running on port " + PORT)
+app.listen(PORT,()=>{
+console.log("Server running on port "+PORT)
 })
