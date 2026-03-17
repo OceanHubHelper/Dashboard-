@@ -5,15 +5,108 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AI Dashboard</title>
 
-<link rel="stylesheet" href="/styles.css">
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:#151515;
+color:white;
+display:flex;
+}
+
+.sidebar{
+width:220px;
+background:#1e1e1e;
+padding:15px;
+height:100vh;
+}
+
+.sidebar button{
+width:100%;
+margin-top:8px;
+padding:10px;
+border:none;
+border-radius:8px;
+background:#2c2c2c;
+color:white;
+cursor:pointer;
+}
+
+.main{
+flex:1;
+padding:20px;
+overflow:auto;
+height:100vh;
+}
+
+.panel{display:none}
+.panel.active{display:block}
+
+.chat{
+background:#202020;
+padding:10px;
+height:300px;
+overflow:auto;
+border-radius:10px;
+}
+
+textarea{
+width:100%;
+height:180px;
+background:#202020;
+color:white;
+border:none;
+padding:10px;
+border-radius:10px;
+}
+
+button{
+margin-top:6px;
+padding:8px 12px;
+border:none;
+border-radius:6px;
+background:#3b3b3b;
+color:white;
+cursor:pointer;
+}
+
+.msgUser{
+background:#345cff;
+padding:6px;
+border-radius:6px;
+margin:4px 0;
+}
+
+.msgAI{
+background:#2a2a2a;
+padding:6px;
+border-radius:6px;
+margin:4px 0;
+}
+
+.history{
+background:#1f1f1f;
+padding:10px;
+border-radius:10px;
+max-height:120px;
+overflow:auto;
+}
+
+#particles{
+position:fixed;
+top:0;
+left:0;
+z-index:-1;
+}
+
+</style>
 
 </head>
 
 <body>
 
 <canvas id="particles"></canvas>
-
-<!-- SIDEBAR -->
 
 <div class="sidebar">
 
@@ -29,72 +122,42 @@
 
 </div>
 
-<!-- MAIN -->
-
 <div class="main">
 
-<!-- AI CHAT -->
+<!-- AI -->
 
 <div class="panel active" id="ai">
 
+<h2>AI Chat</h2>
+
 <div class="chat" id="chat"></div>
 
-<div class="chatControls">
-
 <input id="aiInput" placeholder="Ask AI">
-
 <button onclick="send()">Send</button>
-<button onclick="regenerate()">Regenerate</button>
-<button onclick="clearChat()">Clear</button>
 
 </div>
 
-</div>
-
-<!-- SCRIPT BUILDER -->
+<!-- CODE -->
 
 <div class="panel" id="code">
 
 <h2>Script Builder</h2>
 
-<div class="scriptLayout">
-
-<div class="editor">
-
 <textarea id="codeArea">print("hello")</textarea>
-
-<div class="editorButtons">
 
 <button onclick="runCode()">Run</button>
 <button onclick="copyCode()">Copy</button>
-<button onclick="formatCode()">Format</button>
-<button onclick="explainCode()">Explain</button>
-
-</div>
-
-<div id="output"></div>
-
-</div>
-
-<div class="scriptAI">
 
 <h3>AI Script Helper</h3>
 
-<div id="scriptChat"></div>
+<div id="scriptChat" class="chat"></div>
 
-<input id="scriptInput" placeholder="Ask AI about the script">
-
+<input id="scriptInput" placeholder="Ask AI about code">
 <button onclick="askScriptAI()">Ask AI</button>
 
-</div>
+<h3>Code History</h3>
 
-</div>
-
-<h3>Previous Code</h3>
-
-<div id="history"></div>
-
-<button onclick="toggleHistory()">View All</button>
+<div id="history" class="history"></div>
 
 </div>
 
@@ -104,15 +167,9 @@
 
 <h2>Roblox Tools</h2>
 
-<div class="robloxButtons">
-
 <button onclick="rbPlayer()">Player Lookup</button>
 <button onclick="rbAvatar()">Avatar Viewer</button>
 <button onclick="rbGame()">Game Search</button>
-<button onclick="rbServers()">Server Finder</button>
-<button onclick="rbBadges()">Badge Viewer</button>
-
-</div>
 
 <div id="rbPanel"></div>
 
@@ -126,13 +183,8 @@
 
 <textarea id="notesBox"></textarea>
 
-<div>
-
 <button onclick="saveNotes()">Save</button>
 <button onclick="exportNotes()">Export</button>
-<button onclick="resetNotes()">Reset</button>
-
-</div>
 
 </div>
 
@@ -140,33 +192,22 @@
 
 <div class="panel" id="files">
 
-<h2>File Upload</h2>
+<h2>Files</h2>
 
 <input type="file" id="fileInput">
-
-<button onclick="uploadFile()">Upload</button>
-
-<h3>Files</h3>
 
 <div id="fileList"></div>
 
 </div>
 
-<!-- DEV TOOLS -->
+<!-- DEVTOOLS -->
 
 <div class="panel" id="devtools">
 
-<h2>Developer Tools</h2>
+<h2>API Tester</h2>
 
-<h3>Console</h3>
-
-<div id="console"></div>
-
-<h3>API Tester</h3>
-
-<input id="apiUrl" placeholder="API URL">
-
-<button onclick="testAPI()">Send Request</button>
+<input id="apiUrl" placeholder="URL">
+<button onclick="testAPI()">Send</button>
 
 <pre id="apiResult"></pre>
 
@@ -179,19 +220,184 @@
 <h2>Settings</h2>
 
 <button onclick="toggleTheme()">Dark / Light</button>
-<button onclick="toggleParticles()">Particles</button>
-<button onclick="toggleAnimations()">Animations</button>
-<button onclick="performanceMode()">Performance Mode</button>
-
-<button onclick="logout()">Logout</button>
 
 </div>
 
 </div>
 
-<script src="/dashboard.js"></script>
-<script src="/ai.js"></script>
-<script src="/roblox.js"></script>
+<script>
+
+function showPanel(id){
+document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"))
+document.getElementById(id).classList.add("active")
+}
+
+/* AI CHAT */
+
+function send(){
+
+let text=aiInput.value
+
+let msg=document.createElement("div")
+msg.className="msgUser"
+msg.innerText=text
+chat.appendChild(msg)
+
+aiInput.value=""
+
+typeAI("AI response placeholder",chat)
+
+}
+
+function typeAI(text,container){
+
+let div=document.createElement("div")
+div.className="msgAI"
+container.appendChild(div)
+
+let i=0
+
+let interval=setInterval(()=>{
+div.innerText+=text[i]
+i++
+if(i>=text.length)clearInterval(interval)
+},20)
+
+}
+
+/* CODE */
+
+function runCode(){
+
+let code=codeArea.value
+
+try{
+let result=eval(code)
+saveHistory(code)
+alert(result)
+}catch(e){
+alert(e)
+}
+
+}
+
+function copyCode(){
+navigator.clipboard.writeText(codeArea.value)
+}
+
+function saveHistory(code){
+
+let item=document.createElement("div")
+item.innerText=new Date().toLocaleString()
+item.onclick=()=>codeArea.value=code
+
+history.prepend(item)
+
+}
+
+/* SCRIPT AI */
+
+function askScriptAI(){
+
+let code=codeArea.value
+let question=scriptInput.value
+
+typeAI("Analyzing script: "+code,scriptChat)
+
+}
+
+/* ROBLOX PLACEHOLDER */
+
+function rbPlayer(){
+rbPanel.innerText="Player lookup tool"
+}
+
+function rbAvatar(){
+rbPanel.innerText="Avatar viewer"
+}
+
+function rbGame(){
+rbPanel.innerText="Game search"
+}
+
+/* NOTES */
+
+function saveNotes(){
+localStorage.notes=notesBox.value
+}
+
+function exportNotes(){
+
+let blob=new Blob([notesBox.value])
+let a=document.createElement("a")
+a.href=URL.createObjectURL(blob)
+a.download="notes.txt"
+a.click()
+
+}
+
+/* API TEST */
+
+async function testAPI(){
+
+let url=apiUrl.value
+
+let res=await fetch(url)
+let data=await res.text()
+
+apiResult.innerText=data
+
+}
+
+/* THEME */
+
+function toggleTheme(){
+
+document.body.style.background=
+document.body.style.background=="white"?"#151515":"white"
+
+}
+
+/* PARTICLES */
+
+const canvas=document.getElementById("particles")
+const ctx=canvas.getContext("2d")
+
+canvas.width=window.innerWidth
+canvas.height=window.innerHeight
+
+let parts=[]
+
+for(let i=0;i<80;i++){
+parts.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+dx:Math.random()-0.5,
+dy:Math.random()-0.5
+})
+}
+
+function draw(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height)
+
+parts.forEach(p=>{
+ctx.beginPath()
+ctx.arc(p.x,p.y,2,0,6.28)
+ctx.fillStyle="#555"
+ctx.fill()
+
+p.x+=p.dx
+p.y+=p.dy
+})
+
+requestAnimationFrame(draw)
+
+}
+
+draw()
+
+</script>
 
 </body>
 </html>
