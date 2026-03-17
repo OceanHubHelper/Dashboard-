@@ -3,19 +3,77 @@
 <head>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <title>Home Dashboard</title>
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="/styles.css">
 
 <style>
 
-/* script editor layout */
+/* APPLE STYLE INTRO */
+
+.introSection{
+height:100vh;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+text-align:center;
+padding:40px;
+}
+
+.bigTitle{
+font-size:64px;
+font-weight:700;
+opacity:0;
+transform:translateY(40px);
+transition:1s;
+}
+
+.subtitle{
+font-size:22px;
+opacity:0;
+transform:translateY(40px);
+transition:1s;
+max-width:600px;
+margin-top:20px;
+}
+
+.visible{
+opacity:1;
+transform:translateY(0);
+}
+
+/* LOGIN */
+
+.loginBox{
+background:#1c1c1c;
+padding:40px;
+border-radius:16px;
+width:320px;
+}
+
+.startPage{
+background:#121212;
+}
+
+.hidden{
+display:none;
+}
+
+/* TERMS */
+
+.terms{
+max-width:700px;
+line-height:1.6;
+opacity:.85;
+}
+
+/* SCRIPT LAYOUT */
 
 .scriptLayout{
 display:flex;
 gap:20px;
-height:400px;
+height:420px;
 }
 
 .scriptEditor{
@@ -32,16 +90,14 @@ padding:10px;
 overflow:auto;
 }
 
-.codeArea{
-flex:1;
+/* ANIMATED BUTTON */
+
+button{
+transition:.25s;
 }
 
-.codeArea textarea{
-height:100%;
-}
-
-.copyBtn{
-margin-top:6px;
+button:hover{
+transform:scale(1.05);
 }
 
 </style>
@@ -50,7 +106,122 @@ margin-top:6px;
 
 <body>
 
-<div class="app">
+<!-- APPLE STYLE INTRO -->
+
+<div id="intro1" class="introSection startPage">
+
+<h1 class="bigTitle reveal">The AI Dashboard</h1>
+
+<p class="subtitle reveal">
+A powerful dashboard combining artificial intelligence,
+Roblox developer tools, scripting assistance, and
+automation in one place.
+</p>
+
+</div>
+
+<div id="intro2" class="introSection startPage">
+
+<h1 class="bigTitle reveal">
+Built for creators
+</h1>
+
+<p class="subtitle reveal">
+
+This dashboard was built to combine advanced AI
+with developer tools. It allows creators to write scripts,
+analyze Roblox games, explore APIs, and automate workflows
+using a single interface.
+
+</p>
+
+</div>
+
+<div id="intro3" class="introSection startPage">
+
+<h1 class="bigTitle reveal">
+Smart scripting
+</h1>
+
+<p class="subtitle reveal">
+
+The integrated AI script helper can analyze your code,
+suggest improvements, explain logic, and generate new
+script ideas instantly.
+
+</p>
+
+</div>
+
+<!-- TERMS -->
+
+<div class="introSection startPage">
+
+<h2>Terms of Service</h2>
+
+<p class="terms">
+
+By using this dashboard you agree to use the platform responsibly.
+This software provides AI powered assistance and developer tools
+that may generate automated responses, recommendations, and code.
+
+Users must not abuse the system, attempt to exploit APIs,
+overload the service with automated traffic, or use the platform
+for illegal or malicious activities.
+
+The creators of this dashboard are not responsible for damages,
+data loss, or misuse of generated scripts or automated tools.
+
+By continuing you agree to these terms and confirm that you
+understand the experimental nature of AI generated content.
+
+</p>
+
+<button onclick="openLogin()">Continue</button>
+
+</div>
+
+<!-- LOGIN -->
+
+<div id="loginPage" class="introSection startPage hidden">
+
+<div class="loginBox">
+
+<h2>Sign In</h2>
+
+<input id="loginUser" placeholder="Username">
+<input id="loginPass" type="password" placeholder="Password">
+
+<button onclick="login()">Sign In</button>
+
+<p style="margin-top:20px;cursor:pointer" onclick="openSignup()">
+Create account
+</p>
+
+</div>
+
+</div>
+
+<!-- SIGNUP -->
+
+<div id="signupPage" class="introSection startPage hidden">
+
+<div class="loginBox">
+
+<h2>Create Account</h2>
+
+<input id="signupUser" placeholder="Username">
+<input id="signupPass" type="password" placeholder="Password">
+
+<button onclick="signup()">Create</button>
+
+</div>
+
+</div>
+
+<!-- DASHBOARD -->
+
+<div id="dashboard" class="app hidden">
 
 <h2>Home Dashboard</h2>
 
@@ -58,14 +229,14 @@ margin-top:6px;
 
 <button onclick="showPanel('ai')">AI</button>
 <button onclick="showPanel('notes')">Notes</button>
-<button onclick="showPanel('runner')">Code</button>
+<button onclick="showPanel('code')">Code</button>
 <button onclick="showPanel('files')">Files</button>
 <button onclick="showPanel('roblox')">Roblox</button>
 <button onclick="showPanel('settings')">Settings</button>
 
 </div>
 
-<!-- AI CHAT -->
+<!-- AI -->
 
 <div class="panel active" id="ai">
 
@@ -81,8 +252,6 @@ margin-top:6px;
 
 <div class="panel" id="notes">
 
-<h3>Notes</h3>
-
 <textarea id="notesBox"></textarea>
 
 <button onclick="saveNotes()">Save Notes</button>
@@ -91,23 +260,17 @@ margin-top:6px;
 
 <!-- SCRIPT BUILDER -->
 
-<div class="panel" id="runner">
-
-<h3>Script Builder</h3>
+<div class="panel" id="code">
 
 <div class="scriptLayout">
 
 <div class="scriptEditor">
 
-<div class="codeArea">
-
-<textarea id="code">print("hello")</textarea>
-
-</div>
+<textarea id="codeArea">print("hello")</textarea>
 
 <button onclick="runCode()">Run</button>
 
-<button class="copyBtn" onclick="copyCode()">Copy Code</button>
+<button onclick="copyCode()">Copy</button>
 
 <div id="output"></div>
 
@@ -133,8 +296,6 @@ margin-top:6px;
 
 <div class="panel" id="files">
 
-<h3>Upload Files</h3>
-
 <input type="file">
 
 </div>
@@ -143,9 +304,119 @@ margin-top:6px;
 
 <div class="panel" id="roblox">
 
-<h3>Roblox Tools</h3>
-
-<div class="tools">
-
 <button onclick="rbPlayer()">Player Lookup</button>
-<button onclick="rbAvatar()">Avatar Viewer</button
+<button onclick="rbAvatar()">Avatar Viewer</button>
+<button onclick="rbGame()">Game Info</button>
+
+<div id="rbPanel"></div>
+
+</div>
+
+<!-- SETTINGS -->
+
+<div class="panel" id="settings">
+
+<button onclick="toggleTheme()">Toggle Theme</button>
+
+<button onclick="logout()">Logout</button>
+
+</div>
+
+</div>
+
+<script src="/dashboard.js"></script>
+<script src="/ai.js"></script>
+<script src="/roblox.js"></script>
+
+<script>
+
+/* SCROLL ANIMATIONS */
+
+const observer = new IntersectionObserver(entries=>{
+entries.forEach(entry=>{
+if(entry.isIntersecting){
+entry.target.classList.add("visible")
+}
+})
+})
+
+document.querySelectorAll(".reveal").forEach(el=>{
+observer.observe(el)
+})
+
+/* LOGIN FLOW */
+
+function openLogin(){
+
+loginPage.classList.remove("hidden")
+
+}
+
+function openSignup(){
+
+loginPage.classList.add("hidden")
+
+signupPage.classList.remove("hidden")
+
+}
+
+async function login(){
+
+let res=await fetch("/login",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+username:loginUser.value,
+password:loginPass.value
+})
+})
+
+let data=await res.json()
+
+if(data.error){
+alert(data.error)
+return
+}
+
+loginPage.classList.add("hidden")
+
+dashboard.classList.remove("hidden")
+
+}
+
+async function signup(){
+
+let res=await fetch("/signup",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+username:signupUser.value,
+password:signupPass.value
+})
+})
+
+let data=await res.json()
+
+if(data.error){
+alert(data.error)
+return
+}
+
+alert("Account created")
+
+signupPage.classList.add("hidden")
+
+loginPage.classList.remove("hidden")
+
+}
+
+function logout(){
+
+location.reload()
+
+}
+
+</script>
+
+</body>
+</html>
