@@ -33,12 +33,19 @@ inputs: message
 
 const data = await response.json()
 
-console.log("HF RESPONSE:",data)
+console.log("HF RAW RESPONSE:",data)
 
 let reply = "AI failed"
 
+// handle most HuggingFace response formats
 if(Array.isArray(data) && data[0]?.generated_text){
 reply = data[0].generated_text
+}
+else if(data.generated_text){
+reply = data.generated_text
+}
+else if(data.error){
+reply = "HF Error: " + data.error
 }
 
 res.json({reply})
