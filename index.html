@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>Future Dashboard</title>
@@ -9,12 +9,12 @@
 body{
 margin:0;
 font-family:Arial;
-background:radial-gradient(circle,#0f2027,#000);
+background:linear-gradient(135deg,#0f2027,#000000);
 color:white;
 overflow:hidden;
 }
 
-/* center containers */
+/* center elements */
 
 .center{
 position:absolute;
@@ -27,12 +27,12 @@ text-align:center;
 /* title animation */
 
 .title{
-font-size:50px;
+font-size:48px;
 background:linear-gradient(90deg,#00f7ff,#00ffb3,#00f7ff);
 background-size:200%;
 -webkit-background-clip:text;
 color:transparent;
-animation:glow 4s linear infinite;
+animation:glow 5s linear infinite;
 }
 
 @keyframes glow{
@@ -47,17 +47,19 @@ padding:12px;
 margin:10px;
 border:none;
 border-radius:10px;
-width:220px;
+width:230px;
 }
 
 /* buttons */
 
 button{
 padding:12px 30px;
+margin:10px;
 border:none;
-border-radius:10px;
+border-radius:12px;
 background:linear-gradient(45deg,#00c6ff,#0072ff);
 color:white;
+font-size:16px;
 cursor:pointer;
 transition:.3s;
 }
@@ -81,12 +83,12 @@ position:absolute;
 top:50%;
 left:50%;
 transform:translate(-50%,-50%);
-width:70%;
-height:70%;
-background:rgba(0,0,0,.8);
+width:75%;
+height:75%;
+background:rgba(0,0,0,.85);
 border-radius:20px;
 padding:20px;
-box-shadow:0 0 30px cyan;
+box-shadow:0 0 40px cyan;
 overflow:auto;
 }
 
@@ -96,6 +98,8 @@ height:200px;
 background:#111;
 color:#00ffff;
 border:none;
+padding:10px;
+border-radius:10px;
 }
 
 .output{
@@ -103,6 +107,17 @@ margin-top:10px;
 background:#000;
 padding:10px;
 color:#0f0;
+border-radius:10px;
+}
+
+/* close button */
+
+.close{
+position:absolute;
+right:20px;
+top:15px;
+font-size:22px;
+cursor:pointer;
 }
 
 </style>
@@ -143,6 +158,8 @@ color:#0f0;
 
 <div class="panel" id="ai">
 
+<div class="close" onclick="closePanel('ai')">✕</div>
+
 <h2>AI Assistant</h2>
 
 <input id="aiInput" placeholder="Ask AI..." style="width:70%">
@@ -154,15 +171,19 @@ color:#0f0;
 </div>
 
 
-<!-- NOTES -->
+<!-- NOTES PANEL -->
 
 <div class="panel" id="notes">
+
+<div class="close" onclick="closePanel('notes')">✕</div>
 
 <h2>Notes</h2>
 
 <textarea id="notesBox"></textarea>
 
-<button onclick="saveNotes()">Save</button>
+<br>
+
+<button onclick="saveNotes()">Save Notes</button>
 
 </div>
 
@@ -171,20 +192,24 @@ color:#0f0;
 
 <div class="panel" id="scripts">
 
+<div class="close" onclick="closePanel('scripts')">✕</div>
+
 <h2>Script Runner</h2>
 
 <textarea id="code">console.log("Hello world")</textarea>
 
-<button onclick="runCode()">Run</button>
+<br>
 
-<div id="output"></div>
+<button onclick="runCode()">Run Code</button>
+
+<div class="output" id="output"></div>
 
 </div>
 
 
 <script>
 
-/* login system */
+/* LOGIN */
 
 const USERNAME="admin"
 const PASSWORD="1234"
@@ -207,28 +232,31 @@ alert("Wrong login")
 
 }
 
-/* open panel */
+/* PANEL OPEN/CLOSE */
 
 function openPanel(id){
-
 document.getElementById(id).style.display="block"
-
 }
 
-/* notes */
+function closePanel(id){
+document.getElementById(id).style.display="none"
+}
+
+/* NOTES */
 
 function saveNotes(){
 
 localStorage.setItem("notes",
 document.getElementById("notesBox").value)
 
+alert("Saved!")
+
 }
 
 document.getElementById("notesBox").value=
 localStorage.getItem("notes")||""
 
-
-/* script runner */
+/* SCRIPT RUNNER */
 
 function runCode(){
 
@@ -248,8 +276,7 @@ document.getElementById("output").innerText=e
 
 }
 
-
-/* REAL AI */
+/* AI */
 
 async function askAI(){
 
@@ -257,15 +284,31 @@ let input=document.getElementById("aiInput").value
 
 document.getElementById("aiOutput").innerText="Thinking..."
 
+try{
+
 let res=await fetch("/ai",{
+
 method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({message:input})
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+message:input
+})
+
 })
 
 let data=await res.json()
 
 document.getElementById("aiOutput").innerText=data.reply
+
+}catch(e){
+
+document.getElementById("aiOutput").innerText="AI failed"
+
+}
 
 }
 
