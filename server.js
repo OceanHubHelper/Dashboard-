@@ -14,19 +14,22 @@ try{
 const message = req.body.message
 
 if(!HF_API_KEY){
-return res.json({reply:"Missing HuggingFace API key"})
+return res.json({reply:"HF_API_KEY missing in Railway variables"})
 }
 
 const response = await fetch(
-"https://router.huggingface.co/hf-inference/models/meta-llama/Meta-Llama-3-8B-Instruct",
+"https://router.huggingface.co/v1/chat/completions",
 {
 method:"POST",
 headers:{
-"Authorization":"Bearer "+HF_API_KEY,
+"Authorization":"Bearer " + HF_API_KEY,
 "Content-Type":"application/json"
 },
 body:JSON.stringify({
-inputs: message
+model:"meta-llama/Meta-Llama-3-8B-Instruct",
+messages:[
+{role:"user",content:message}
+]
 })
 }
 )
@@ -35,17 +38,11 @@ const data = await response.json()
 
 console.log("HF RESPONSE:",data)
 
-let reply = "AI failed"
+if(data.error){
+return res.json({reply:"HF Error: "+data.error.message})
+}
 
-if(Array.isArray(data) && data[0]?.generated_text){
-reply = data[0].generated_text
-}
-else if(data.generated_text){
-reply = data.generated_text
-}
-else if(data.error){
-reply = "HF Error: " + data.error
-}
+const reply = data?.choices?.[0]?.message?.content || "AI failed"
 
 res.json({reply})
 
@@ -53,7 +50,7 @@ res.json({reply})
 
 console.log("SERVER ERROR:",err)
 
-res.json({reply:"Server error"})
+res.json({reply:"Server error — check Railway logs"})
 
 }
 
