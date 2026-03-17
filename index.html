@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Future Dashboard</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial, Helvetica, sans-serif;
+background: radial-gradient(circle at top, #0f2027, #050505);
+color:white;
+overflow:hidden;
+}
+
+/* animated background */
+body::before{
+content:"";
+position:absolute;
+width:200%;
+height:200%;
+background: repeating-linear-gradient(
+90deg,
+rgba(0,255,255,0.05) 0px,
+rgba(0,255,255,0.05) 2px,
+transparent 2px,
+transparent 50px
+);
+animation: moveGrid 10s linear infinite;
+}
+
+@keyframes moveGrid{
+0%{transform:translate(0,0);}
+100%{transform:translate(-200px,-200px);}
+}
+
+.container{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+text-align:center;
+}
+
+/* title animation */
+
+.title{
+font-size:50px;
+letter-spacing:4px;
+background: linear-gradient(90deg,#00f7ff,#00ffb3,#00f7ff);
+background-size:200%;
+-webkit-background-clip:text;
+color:transparent;
+animation: glowText 4s linear infinite;
+}
+
+@keyframes glowText{
+0%{background-position:0%}
+100%{background-position:200%}
+}
+
+/* button style */
+
+button{
+
+margin:15px;
+padding:15px 40px;
+font-size:18px;
+border:none;
+border-radius:12px;
+color:white;
+cursor:pointer;
+
+background:linear-gradient(45deg,#00c6ff,#0072ff);
+box-shadow:0 0 15px #00c6ff;
+
+transition:all .3s;
+}
+
+button:hover{
+
+transform:scale(1.1);
+box-shadow:0 0 25px #00c6ff,0 0 60px #00c6ff;
+}
+
+/* panels */
+
+.panel{
+display:none;
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+width:70%;
+height:70%;
+background:rgba(0,0,0,0.7);
+backdrop-filter:blur(20px);
+border-radius:20px;
+padding:20px;
+box-shadow:0 0 40px #00ffff;
+overflow:auto;
+}
+
+.close{
+position:absolute;
+right:20px;
+top:20px;
+cursor:pointer;
+font-size:20px;
+}
+
+textarea{
+width:100%;
+height:200px;
+background:#111;
+color:#00ffff;
+border:none;
+padding:10px;
+}
+
+.output{
+margin-top:10px;
+background:#000;
+padding:10px;
+color:#0f0;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="title">FUTURE DASHBOARD</div>
+
+<br>
+
+<button onclick="openPanel('ai')">AI</button>
+<button onclick="openPanel('notes')">Notes</button>
+<button onclick="openPanel('scripts')">Script Runner</button>
+<button onclick="openPanel('terminal')">Terminal</button>
+
+</div>
+
+<!-- AI PANEL -->
+
+<div class="panel" id="ai">
+
+<div class="close" onclick="closePanel('ai')">X</div>
+
+<h2>AI Assistant</h2>
+
+<input id="aiInput" placeholder="Ask something..." style="width:80%;padding:10px">
+
+<button onclick="fakeAI()">Ask</button>
+
+<div id="aiOutput"></div>
+
+</div>
+
+<!-- NOTES -->
+
+<div class="panel" id="notes">
+
+<div class="close" onclick="closePanel('notes')">X</div>
+
+<h2>Notes</h2>
+
+<textarea id="notesBox"></textarea>
+
+<button onclick="saveNotes()">Save</button>
+
+</div>
+
+<!-- SCRIPT RUNNER -->
+
+<div class="panel" id="scripts">
+
+<div class="close" onclick="closePanel('scripts')">X</div>
+
+<h2>Script Runner (JavaScript)</h2>
+
+<textarea id="code">
+console.log("Hello World")
+</textarea>
+
+<button onclick="runCode()">Run</button>
+
+<div class="output" id="output"></div>
+
+</div>
+
+<!-- TERMINAL -->
+
+<div class="panel" id="terminal">
+
+<div class="close" onclick="closePanel('terminal')">X</div>
+
+<h2>Fake Terminal</h2>
+
+<input id="termInput" placeholder="type command">
+
+<button onclick="runCommand()">Run</button>
+
+<div id="termOutput"></div>
+
+</div>
+
+<script>
+
+function openPanel(id){
+document.getElementById(id).style.display="block"
+}
+
+function closePanel(id){
+document.getElementById(id).style.display="none"
+}
+
+function runCode(){
+
+let code=document.getElementById("code").value
+
+try{
+
+let result=eval(code)
+
+document.getElementById("output").innerText=result
+
+}catch(e){
+
+document.getElementById("output").innerText=e
+
+}
+
+}
+
+function saveNotes(){
+
+localStorage.setItem("notes",
+document.getElementById("notesBox").value)
+
+alert("saved")
+
+}
+
+document.getElementById("notesBox").value=
+localStorage.getItem("notes")||""
+
+function fakeAI(){
+
+let q=document.getElementById("aiInput").value
+
+document.getElementById("aiOutput").innerText=
+"AI: thinking about '"+q+"'..."
+
+}
+
+function runCommand(){
+
+let cmd=document.getElementById("termInput").value
+
+document.getElementById("termOutput").innerHTML+=
+"> "+cmd+"<br>ACCESSING SYSTEM...<br>"
+
+}
+
+</script>
+
+</body>
+</html>
