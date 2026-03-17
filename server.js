@@ -1,55 +1,48 @@
-import express from "express"
+import express from "express";
 
-const app = express()
+const app = express();
 
-app.use(express.json())
-app.use(express.static("."))
+app.use(express.json());
+app.use(express.static("."));
 
-const API_KEY = process.env.OPENAI_API_KEY
+const API_KEY = process.env.OPENAI_API_KEY;
 
-app.post("/ai", async (req,res)=>{
+app.post("/ai", async (req, res) => {
+  try {
+    const message = req.body.message;
 
-try{
+    if (!API_KEY) {
+      return res.json({ reply: "API key missing." });
+    }
 
-const msg=req.body.message
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + API_KEY
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "user", content: message }
+        ]
+      })
+    });
 
-const response=await fetch("https://api.openai.com/v1/chat/completions",{
+    const data = await response.json();
 
-method:"POST",
+    console.log("AI response:", data);
 
-headers:{
-"Content-Type":"application/json",
-"Authorization":"Bearer "+API_KEY
-},
+    const reply = data?.choices?.[0]?.message?.content || "AI failed to respond.";
 
-body:JSON.stringify({
+    res.json({ reply });
 
-model:"gpt-4o-mini",
+  } catch (err) {
+    console.log("SERVER ERROR:", err);
+    res.json({ reply: "Server error." });
+  }
+});
 
-messages:[
-{role:"user",content:msg}
-]
-
-})
-
-})
-
-const data=await response.json()
-
-console.log(data)
-
-res.json({
-reply:data.choices?.[0]?.message?.content || "AI failed"
-})
-
-}catch(e){
-
-console.log("AI ERROR:",e)
-
-res.json({reply:"Server error"})
-
-}
-
-})
-
-app.listen(3000,()=>console.log("Server running"))
+app.listen(3000, () => {
+  console.log("Server running on port 3000");
+});
