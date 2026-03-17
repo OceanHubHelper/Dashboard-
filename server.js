@@ -1,5 +1,4 @@
 import express from "express"
-import fetch from "node-fetch"
 
 const app = express()
 
@@ -9,6 +8,8 @@ app.use(express.static("."))
 const API_KEY = process.env.OPENAI_API_KEY
 
 app.post("/ai", async (req,res)=>{
+
+try{
 
 const msg=req.body.message
 
@@ -25,7 +26,9 @@ body:JSON.stringify({
 
 model:"gpt-4o-mini",
 
-messages:[{role:"user",content:msg}]
+messages:[
+{role:"user",content:msg}
+]
 
 })
 
@@ -33,8 +36,20 @@ messages:[{role:"user",content:msg}]
 
 const data=await response.json()
 
-res.json({reply:data.choices[0].message.content})
+console.log(data)
+
+res.json({
+reply:data.choices?.[0]?.message?.content || "AI failed"
+})
+
+}catch(e){
+
+console.log("AI ERROR:",e)
+
+res.json({reply:"Server error"})
+
+}
 
 })
 
-app.listen(3000,()=>console.log("server running"))
+app.listen(3000,()=>console.log("Server running"))
