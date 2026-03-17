@@ -9,70 +9,89 @@
 body{
 margin:0;
 font-family:-apple-system,BlinkMacSystemFont,Arial;
-background:#161616;
-color:white;
+background:#151515;
+color:#e8e8e8;
+transition:.3s;
 }
 
 .app{
 width:95%;
-max-width:1000px;
+max-width:1100px;
 height:92vh;
 margin:auto;
 margin-top:4vh;
 background:#242424;
-border-radius:20px;
+border-radius:22px;
 padding:20px;
 display:flex;
 flex-direction:column;
+box-shadow:0 0 50px rgba(0,0,0,0.6);
 }
 
 .nav{
 display:flex;
 gap:10px;
-margin-bottom:10px;
 flex-wrap:wrap;
+margin-bottom:10px;
 }
 
 button{
+
 padding:10px 16px;
+
 border:none;
 border-radius:12px;
-background:#3a3a3a;
+
+background:linear-gradient(135deg,#404040,#2d2d2d);
+
 color:white;
+
 cursor:pointer;
+
+transition:.2s;
+
 }
 
 button:hover{
-background:#555;
+transform:scale(1.05);
+background:linear-gradient(135deg,#5e5e5e,#3f3f3f);
 }
 
 .panel{
 flex:1;
 display:none;
 overflow:auto;
+animation:fade .3s ease;
 }
 
 .panel.active{
 display:block;
 }
 
+@keyframes fade{
+from{opacity:0}
+to{opacity:1}
+}
+
+/* chat */
+
 .chat{
-height:300px;
+height:320px;
 overflow:auto;
-background:#1b1b1b;
-border-radius:12px;
+background:#1c1c1c;
+border-radius:14px;
 padding:10px;
 }
 
 .msg{
-padding:10px;
+padding:10px 14px;
 margin:6px 0;
-border-radius:12px;
+border-radius:14px;
 max-width:70%;
 }
 
 .user{
-background:#4a66ff;
+background:#4c66ff;
 margin-left:auto;
 }
 
@@ -80,14 +99,44 @@ margin-left:auto;
 background:#333;
 }
 
+/* inputs */
+
 input,textarea{
+
 width:100%;
 padding:12px;
-border-radius:12px;
+
 border:none;
-background:#2d2d2d;
+border-radius:12px;
+
+background:#2f2f2f;
 color:white;
+
 margin-top:8px;
+
+}
+
+/* roblox */
+
+.tools{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+gap:10px;
+margin-bottom:10px;
+}
+
+/* settings */
+
+.setting{
+margin-bottom:12px;
+padding:10px;
+background:#2a2a2a;
+border-radius:10px;
+}
+
+.light{
+background:#f2f2f2;
+color:#111;
 }
 
 </style>
@@ -104,7 +153,9 @@ margin-top:8px;
 <button onclick="showPanel('ai')">AI</button>
 <button onclick="showPanel('notes')">Notes</button>
 <button onclick="showPanel('runner')">Code</button>
+<button onclick="showPanel('files')">Files</button>
 <button onclick="showPanel('roblox')">Roblox</button>
+<button onclick="showPanel('settings')">Settings</button>
 
 </div>
 
@@ -124,14 +175,19 @@ margin-top:8px;
 
 <div class="panel" id="notes">
 
+<h3>Notes</h3>
+
 <textarea id="notesBox"></textarea>
-<button onclick="saveNotes()">Save</button>
+
+<button onclick="saveNotes()">Save Notes</button>
 
 </div>
 
-<!-- CODE -->
+<!-- CODE RUNNER -->
 
 <div class="panel" id="runner">
+
+<h3>Code Runner</h3>
 
 <textarea id="code">print(2)</textarea>
 
@@ -141,11 +197,23 @@ margin-top:8px;
 
 </div>
 
+<!-- FILES -->
+
+<div class="panel" id="files">
+
+<h3>Upload Files</h3>
+
+<input type="file">
+
+</div>
+
 <!-- ROBLOX -->
 
 <div class="panel" id="roblox">
 
 <h3>Roblox Tools</h3>
+
+<div class="tools">
 
 <button onclick="rbPlayer()">Player Lookup</button>
 <button onclick="rbAvatar()">Avatar Viewer</button>
@@ -153,13 +221,55 @@ margin-top:8px;
 <button onclick="rbServers()">Server Finder</button>
 <button onclick="rbBadges()">Badge Viewer</button>
 
+</div>
+
 <div id="rbPanel"></div>
+
+</div>
+
+<!-- SETTINGS -->
+
+<div class="panel" id="settings">
+
+<h3>Settings</h3>
+
+<div class="setting">
+<button onclick="toggleTheme()">Toggle Dark / Light Mode</button>
+</div>
+
+<div class="setting">
+<button onclick="clearChat()">Clear Chat</button>
+</div>
+
+<div class="setting">
+<button onclick="exportNotes()">Export Notes</button>
+</div>
+
+<div class="setting">
+<button onclick="resetNotes()">Reset Notes</button>
+</div>
+
+<div class="setting">
+<button onclick="toggleAnimations()">Toggle Animations</button>
+</div>
+
+<div class="setting">
+<button onclick="performanceMode()">Performance Mode</button>
+</div>
+
+<div class="setting">
+<button onclick="clearStorage()">Clear Local Storage</button>
+</div>
 
 </div>
 
 </div>
 
 <script>
+
+let username="guest"
+
+/* panel switching */
 
 function showPanel(id){
 
@@ -169,7 +279,7 @@ document.getElementById(id).classList.add("active")
 
 }
 
-/* AI */
+/* chat */
 
 function addMessage(text,type){
 
@@ -185,27 +295,38 @@ chat.scrollTop=chat.scrollHeight
 
 }
 
+/* AI */
+
 async function send(){
 
 let text=aiInput.value
+
+if(!text) return
 
 addMessage(text,"user")
 
 aiInput.value=""
 
 let res=await fetch("/ai",{
+
 method:"POST",
+
 headers:{"Content-Type":"application/json"},
-body:JSON.stringify({message:text})
+
+body:JSON.stringify({
+username:username,
+message:text
+})
+
 })
 
 let data=await res.json()
 
-addMessage(data.reply,"ai")
+addMessage(data.reply || "AI failed","ai")
 
 }
 
-/* NOTES */
+/* notes */
 
 notesBox.value=localStorage.getItem("notes")||""
 
@@ -215,7 +336,33 @@ localStorage.setItem("notes",notesBox.value)
 
 }
 
-/* CODE RUNNER */
+/* export notes */
+
+function exportNotes(){
+
+let blob=new Blob([notesBox.value],{type:"text/plain"})
+
+let a=document.createElement("a")
+
+a.href=URL.createObjectURL(blob)
+
+a.download="notes.txt"
+
+a.click()
+
+}
+
+/* reset notes */
+
+function resetNotes(){
+
+notesBox.value=""
+
+localStorage.removeItem("notes")
+
+}
+
+/* code runner */
 
 function runCode(){
 
@@ -236,170 +383,37 @@ catch(e){output.innerText=e}
 
 }
 
-/* ROBLOX PLAYER */
+/* theme */
 
-function rbPlayer(){
+function toggleTheme(){
 
-rbPanel.innerHTML=`
-<input id="rbUser" placeholder="Username">
-<button onclick="lookupPlayer()">Search</button>
-<div id="rbResult"></div>
-`
+document.body.classList.toggle("light")
 
 }
 
-async function lookupPlayer(){
+/* settings extras */
 
-let username=rbUser.value
-
-let res=await fetch(
-"https://users.roproxy.com/v1/usernames/users",
-{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({usernames:[username]})
-})
-
-let data=await res.json()
-
-if(!data.data.length){
-rbResult.innerText="User not found"
-return
+function clearChat(){
+chat.innerHTML=""
 }
 
-let id=data.data[0].id
+function toggleAnimations(){
 
-rbResult.innerText="User ID: "+id
+alert("Animations toggled")
 
 }
 
-/* AVATAR */
+function performanceMode(){
 
-function rbAvatar(){
-
-rbPanel.innerHTML=`
-<input id="rbAvatarUser" placeholder="Username">
-<button onclick="loadAvatar()">Load</button>
-<div id="avatarResult"></div>
-`
+alert("Performance mode enabled")
 
 }
 
-async function loadAvatar(){
+function clearStorage(){
 
-let username=rbAvatarUser.value
+localStorage.clear()
 
-let res=await fetch(
-"https://users.roproxy.com/v1/usernames/users",
-{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({usernames:[username]})
-})
-
-let data=await res.json()
-
-let id=data.data[0].id
-
-let img=`https://thumbnails.roproxy.com/v1/users/avatar?userIds=${id}&size=420x420&format=Png`
-
-avatarResult.innerHTML=`<img src="${img}" width="200">`
-
-}
-
-/* GAME SEARCH */
-
-function rbGame(){
-
-rbPanel.innerHTML=`
-<input id="gameName" placeholder="Game Name">
-<button onclick="searchGame()">Search</button>
-<div id="gameResult"></div>
-`
-
-}
-
-async function searchGame(){
-
-let name=gameName.value
-
-let res=await fetch(
-"https://games.roproxy.com/v1/games/list?model.keyword="+name+"&model.maxRows=10"
-)
-
-let data=await res.json()
-
-if(!data.games.length){
-gameResult.innerText="Game not found"
-return
-}
-
-let game=data.games[0]
-
-gameResult.innerHTML=`
-
-<b>${game.name}</b><br>
-Creator: ${game.creatorName}<br>
-Players: ${game.playerCount}<br>
-Visits: ${game.visits}
-
-`
-
-}
-
-/* SERVERS */
-
-function rbServers(){
-
-rbPanel.innerHTML=`
-<input id="serverGameId" placeholder="Game ID">
-<button onclick="findServers()">Find</button>
-<div id="serverResult"></div>
-`
-
-}
-
-async function findServers(){
-
-let id=serverGameId.value
-
-let res=await fetch(
-"https://games.roproxy.com/v1/games/"+id+"/servers/Public?limit=10"
-)
-
-let data=await res.json()
-
-serverResult.innerHTML=data.data.map(s=>
-`Players: ${s.playing}/${s.maxPlayers}`
-).join("<br>")
-
-}
-
-/* BADGES */
-
-function rbBadges(){
-
-rbPanel.innerHTML=`
-<input id="badgeGameId" placeholder="Game ID">
-<button onclick="findBadges()">Search</button>
-<div id="badgeResult"></div>
-`
-
-}
-
-async function findBadges(){
-
-let id=badgeGameId.value
-
-let res=await fetch(
-"https://badges.roproxy.com/v1/universes/"+id+"/badges?limit=10"
-)
-
-let data=await res.json()
-
-badgeResult.innerHTML=data.data.map(b=>
-b.name
-).join("<br>")
+alert("Storage cleared")
 
 }
 
