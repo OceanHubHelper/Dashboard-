@@ -3,15 +3,15 @@
 <head>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Home Dashboard</title>
+<title>AI Dashboard</title>
 
 <link rel="stylesheet" href="/styles.css">
 
 <style>
 
-/* APPLE STYLE INTRO */
+/* PARALLAX INTRO */
 
-.introSection{
+.parallax{
 height:100vh;
 display:flex;
 flex-direction:column;
@@ -21,54 +21,28 @@ text-align:center;
 padding:40px;
 }
 
-.bigTitle{
-font-size:64px;
-font-weight:700;
-opacity:0;
-transform:translateY(40px);
-transition:1s;
+.parallax h1{
+font-size:60px;
 }
 
-.subtitle{
-font-size:22px;
-opacity:0;
-transform:translateY(40px);
-transition:1s;
+.parallax p{
 max-width:600px;
-margin-top:20px;
+font-size:20px;
+opacity:.8;
 }
 
-.visible{
-opacity:1;
-transform:translateY(0);
+/* PARTICLES */
+
+#particles{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+z-index:-1;
 }
 
-/* LOGIN */
-
-.loginBox{
-background:#1c1c1c;
-padding:40px;
-border-radius:16px;
-width:320px;
-}
-
-.startPage{
-background:#121212;
-}
-
-.hidden{
-display:none;
-}
-
-/* TERMS */
-
-.terms{
-max-width:700px;
-line-height:1.6;
-opacity:.85;
-}
-
-/* SCRIPT LAYOUT */
+/* SCRIPT BUILDER */
 
 .scriptLayout{
 display:flex;
@@ -84,20 +58,24 @@ flex-direction:column;
 
 .scriptAI{
 width:40%;
-background:#1c1c1c;
+background:#1b1b1b;
 border-radius:14px;
 padding:10px;
 overflow:auto;
 }
 
-/* ANIMATED BUTTON */
-
-button{
-transition:.25s;
+.aiMessage{
+margin:6px 0;
+padding:8px;
+background:#2a2a2a;
+border-radius:10px;
 }
 
-button:hover{
-transform:scale(1.05);
+.applyBox{
+margin-top:10px;
+padding:10px;
+background:#222;
+border-radius:10px;
 }
 
 </style>
@@ -106,84 +84,48 @@ transform:scale(1.05);
 
 <body>
 
-<!-- APPLE STYLE INTRO -->
+<canvas id="particles"></canvas>
 
-<div id="intro1" class="introSection startPage">
+<!-- PARALLAX INTRO -->
 
-<h1 class="bigTitle reveal">The AI Dashboard</h1>
+<section class="parallax">
 
-<p class="subtitle reveal">
-A powerful dashboard combining artificial intelligence,
-Roblox developer tools, scripting assistance, and
-automation in one place.
+<h1>AI Dashboard</h1>
+
+<p>
+A powerful AI dashboard combining scripting,
+Roblox tools, and intelligent automation.
 </p>
 
-</div>
+</section>
 
-<div id="intro2" class="introSection startPage">
+<section class="parallax">
 
-<h1 class="bigTitle reveal">
-Built for creators
-</h1>
+<h1>Smart scripting</h1>
 
-<p class="subtitle reveal">
-
-This dashboard was built to combine advanced AI
-with developer tools. It allows creators to write scripts,
-analyze Roblox games, explore APIs, and automate workflows
-using a single interface.
-
+<p>
+Write code, analyze scripts, and let AI help
+improve and debug your work instantly.
 </p>
 
-</div>
+</section>
 
-<div id="intro3" class="introSection startPage">
+<section class="parallax">
 
-<h1 class="bigTitle reveal">
-Smart scripting
-</h1>
+<h1>Developer tools</h1>
 
-<p class="subtitle reveal">
-
-The integrated AI script helper can analyze your code,
-suggest improvements, explain logic, and generate new
-script ideas instantly.
-
-</p>
-
-</div>
-
-<!-- TERMS -->
-
-<div class="introSection startPage">
-
-<h2>Terms of Service</h2>
-
-<p class="terms">
-
-By using this dashboard you agree to use the platform responsibly.
-This software provides AI powered assistance and developer tools
-that may generate automated responses, recommendations, and code.
-
-Users must not abuse the system, attempt to exploit APIs,
-overload the service with automated traffic, or use the platform
-for illegal or malicious activities.
-
-The creators of this dashboard are not responsible for damages,
-data loss, or misuse of generated scripts or automated tools.
-
-By continuing you agree to these terms and confirm that you
-understand the experimental nature of AI generated content.
-
+<p>
+Explore Roblox data, generate scripts,
+and build projects with powerful AI assistance.
 </p>
 
 <button onclick="openLogin()">Continue</button>
 
-</div>
+</section>
 
 <!-- LOGIN -->
 
-<div id="loginPage" class="introSection startPage hidden">
+<div id="loginPage" class="startPage hidden">
 
 <div class="loginBox">
 
@@ -194,9 +136,7 @@ understand the experimental nature of AI generated content.
 
 <button onclick="login()">Sign In</button>
 
-<p style="margin-top:20px;cursor:pointer" onclick="openSignup()">
-Create account
-</p>
+<p onclick="openSignup()">Create account</p>
 
 </div>
 
@@ -204,7 +144,7 @@ Create account
 
 <!-- SIGNUP -->
 
-<div id="signupPage" class="introSection startPage hidden">
+<div id="signupPage" class="startPage hidden">
 
 <div class="loginBox">
 
@@ -213,7 +153,12 @@ Create account
 <input id="signupUser" placeholder="Username">
 <input id="signupPass" type="password" placeholder="Password">
 
-<button onclick="signup()">Create</button>
+<label>
+<input type="checkbox" id="termsCheck">
+I agree to the <b>Terms of Service</b>
+</label>
+
+<button onclick="signup()">Create Account</button>
 
 </div>
 
@@ -223,20 +168,19 @@ Create account
 
 <div id="dashboard" class="app hidden">
 
-<h2>Home Dashboard</h2>
+<h2>AI Dashboard</h2>
 
 <div class="nav">
 
 <button onclick="showPanel('ai')">AI</button>
-<button onclick="showPanel('notes')">Notes</button>
 <button onclick="showPanel('code')">Code</button>
-<button onclick="showPanel('files')">Files</button>
+<button onclick="showPanel('notes')">Notes</button>
 <button onclick="showPanel('roblox')">Roblox</button>
 <button onclick="showPanel('settings')">Settings</button>
 
 </div>
 
-<!-- AI -->
+<!-- AI CHAT -->
 
 <div class="panel active" id="ai">
 
@@ -245,16 +189,6 @@ Create account
 <input id="aiInput" placeholder="Ask AI">
 
 <button onclick="send()">Send</button>
-
-</div>
-
-<!-- NOTES -->
-
-<div class="panel" id="notes">
-
-<textarea id="notesBox"></textarea>
-
-<button onclick="saveNotes()">Save Notes</button>
 
 </div>
 
@@ -278,7 +212,7 @@ Create account
 
 <div class="scriptAI">
 
-<h4>AI Script Helper</h4>
+<h3>AI Script Helper</h3>
 
 <div id="scriptChat"></div>
 
@@ -292,11 +226,13 @@ Create account
 
 </div>
 
-<!-- FILES -->
+<!-- NOTES -->
 
-<div class="panel" id="files">
+<div class="panel" id="notes">
 
-<input type="file">
+<textarea id="notesBox"></textarea>
+
+<button onclick="saveNotes()">Save</button>
 
 </div>
 
@@ -316,7 +252,9 @@ Create account
 
 <div class="panel" id="settings">
 
-<button onclick="toggleTheme()">Toggle Theme</button>
+<button onclick="toggleTheme()">Dark / Light Mode</button>
+
+<button onclick="toggleParticles()">Toggle Particles</button>
 
 <button onclick="logout()">Logout</button>
 
@@ -330,33 +268,163 @@ Create account
 
 <script>
 
-/* SCROLL ANIMATIONS */
+/* AI TYPING ANIMATION */
 
-const observer = new IntersectionObserver(entries=>{
-entries.forEach(entry=>{
-if(entry.isIntersecting){
-entry.target.classList.add("visible")
+function typeAI(text,container){
+
+let i=0
+
+let div=document.createElement("div")
+div.className="aiMessage"
+container.appendChild(div)
+
+let interval=setInterval(()=>{
+
+div.innerText+=text[i]
+
+i++
+
+if(i>=text.length){
+clearInterval(interval)
 }
-})
+
+},15)
+
+}
+
+/* SCRIPT AI */
+
+async function askScriptAI(){
+
+let question=scriptInput.value
+
+let code=document.getElementById("codeArea").value
+
+let res=await fetch("/ai",{
+
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+username:"script",
+message:"Analyze this code: "+code+" Question: "+question
 })
 
-document.querySelectorAll(".reveal").forEach(el=>{
-observer.observe(el)
 })
+
+let data=await res.json()
+
+typeAI(data.reply,scriptChat)
+
+/* detect code suggestion */
+
+if(data.reply.includes("```")){
+
+let suggestion=data.reply.split("```")[1]
+
+let box=document.createElement("div")
+box.className="applyBox"
+
+box.innerHTML=`
+Make changes to script?<br>
+<button onclick="applyCode(\`${suggestion}\`)">Apply</button>
+`
+
+scriptChat.appendChild(box)
+
+}
+
+}
+
+function applyCode(newCode){
+
+document.getElementById("codeArea").value=newCode
+
+}
+
+/* PARTICLES */
+
+const canvas=document.getElementById("particles")
+const ctx=canvas.getContext("2d")
+
+canvas.width=window.innerWidth
+canvas.height=window.innerHeight
+
+let particles=[]
+
+for(let i=0;i<80;i++){
+
+particles.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+r:Math.random()*2+1,
+dx:Math.random()-0.5,
+dy:Math.random()-0.5
+})
+
+}
+
+function animate(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height)
+
+particles.forEach(p=>{
+
+ctx.beginPath()
+ctx.arc(p.x,p.y,p.r,0,Math.PI*2)
+ctx.fillStyle="#555"
+ctx.fill()
+
+p.x+=p.dx
+p.y+=p.dy
+
+})
+
+requestAnimationFrame(animate)
+
+}
+
+animate()
+
+function toggleParticles(){
+
+canvas.style.display =
+canvas.style.display==="none" ? "block":"none"
+
+}
 
 /* LOGIN FLOW */
 
 function openLogin(){
-
 loginPage.classList.remove("hidden")
-
 }
 
 function openSignup(){
-
 loginPage.classList.add("hidden")
-
 signupPage.classList.remove("hidden")
+}
+
+async function signup(){
+
+if(!termsCheck.checked){
+alert("You must agree to the Terms of Service")
+return
+}
+
+let res=await fetch("/signup",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+username:signupUser.value,
+password:signupPass.value
+})
+})
+
+let data=await res.json()
+
+alert("Account created")
+
+signupPage.classList.add("hidden")
+loginPage.classList.remove("hidden")
 
 }
 
@@ -379,41 +447,12 @@ return
 }
 
 loginPage.classList.add("hidden")
-
 dashboard.classList.remove("hidden")
 
 }
 
-async function signup(){
-
-let res=await fetch("/signup",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-username:signupUser.value,
-password:signupPass.value
-})
-})
-
-let data=await res.json()
-
-if(data.error){
-alert(data.error)
-return
-}
-
-alert("Account created")
-
-signupPage.classList.add("hidden")
-
-loginPage.classList.remove("hidden")
-
-}
-
 function logout(){
-
 location.reload()
-
 }
 
 </script>
