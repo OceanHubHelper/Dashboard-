@@ -1,145 +1,51 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>Home Dashboard</title>
+
+<link rel="stylesheet" href="styles.css">
 
 <style>
 
-body{
-margin:0;
-font-family:-apple-system,BlinkMacSystemFont,Arial;
-background:#151515;
-color:#e8e8e8;
-transition:.3s;
+/* script editor layout */
+
+.scriptLayout{
+display:flex;
+gap:20px;
+height:400px;
 }
 
-.app{
-width:95%;
-max-width:1100px;
-height:92vh;
-margin:auto;
-margin-top:4vh;
-background:#242424;
-border-radius:22px;
-padding:20px;
+.scriptEditor{
+flex:1;
 display:flex;
 flex-direction:column;
-box-shadow:0 0 50px rgba(0,0,0,0.6);
 }
 
-.nav{
-display:flex;
-gap:10px;
-flex-wrap:wrap;
-margin-bottom:10px;
-}
-
-button{
-
-padding:10px 16px;
-
-border:none;
-border-radius:12px;
-
-background:linear-gradient(135deg,#404040,#2d2d2d);
-
-color:white;
-
-cursor:pointer;
-
-transition:.2s;
-
-}
-
-button:hover{
-transform:scale(1.05);
-background:linear-gradient(135deg,#5e5e5e,#3f3f3f);
-}
-
-.panel{
-flex:1;
-display:none;
-overflow:auto;
-animation:fade .3s ease;
-}
-
-.panel.active{
-display:block;
-}
-
-@keyframes fade{
-from{opacity:0}
-to{opacity:1}
-}
-
-/* chat */
-
-.chat{
-height:320px;
-overflow:auto;
+.scriptAI{
+width:40%;
 background:#1c1c1c;
 border-radius:14px;
 padding:10px;
+overflow:auto;
 }
 
-.msg{
-padding:10px 14px;
-margin:6px 0;
-border-radius:14px;
-max-width:70%;
+.codeArea{
+flex:1;
 }
 
-.user{
-background:#4c66ff;
-margin-left:auto;
+.codeArea textarea{
+height:100%;
 }
 
-.ai{
-background:#333;
-}
-
-/* inputs */
-
-input,textarea{
-
-width:100%;
-padding:12px;
-
-border:none;
-border-radius:12px;
-
-background:#2f2f2f;
-color:white;
-
-margin-top:8px;
-
-}
-
-/* roblox */
-
-.tools{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-gap:10px;
-margin-bottom:10px;
-}
-
-/* settings */
-
-.setting{
-margin-bottom:12px;
-padding:10px;
-background:#2a2a2a;
-border-radius:10px;
-}
-
-.light{
-background:#f2f2f2;
-color:#111;
+.copyBtn{
+margin-top:6px;
 }
 
 </style>
+
 </head>
 
 <body>
@@ -159,7 +65,7 @@ color:#111;
 
 </div>
 
-<!-- AI -->
+<!-- AI CHAT -->
 
 <div class="panel active" id="ai">
 
@@ -183,17 +89,43 @@ color:#111;
 
 </div>
 
-<!-- CODE RUNNER -->
+<!-- SCRIPT BUILDER -->
 
 <div class="panel" id="runner">
 
-<h3>Code Runner</h3>
+<h3>Script Builder</h3>
 
-<textarea id="code">print(2)</textarea>
+<div class="scriptLayout">
+
+<div class="scriptEditor">
+
+<div class="codeArea">
+
+<textarea id="code">print("hello")</textarea>
+
+</div>
 
 <button onclick="runCode()">Run</button>
 
+<button class="copyBtn" onclick="copyCode()">Copy Code</button>
+
 <div id="output"></div>
+
+</div>
+
+<div class="scriptAI">
+
+<h4>AI Script Helper</h4>
+
+<div id="scriptChat"></div>
+
+<input id="scriptInput" placeholder="Ask AI about script">
+
+<button onclick="askScriptAI()">Ask AI</button>
+
+</div>
+
+</div>
 
 </div>
 
@@ -216,208 +148,4 @@ color:#111;
 <div class="tools">
 
 <button onclick="rbPlayer()">Player Lookup</button>
-<button onclick="rbAvatar()">Avatar Viewer</button>
-<button onclick="rbGame()">Game Info</button>
-<button onclick="rbServers()">Server Finder</button>
-<button onclick="rbBadges()">Badge Viewer</button>
-
-</div>
-
-<div id="rbPanel"></div>
-
-</div>
-
-<!-- SETTINGS -->
-
-<div class="panel" id="settings">
-
-<h3>Settings</h3>
-
-<div class="setting">
-<button onclick="toggleTheme()">Toggle Dark / Light Mode</button>
-</div>
-
-<div class="setting">
-<button onclick="clearChat()">Clear Chat</button>
-</div>
-
-<div class="setting">
-<button onclick="exportNotes()">Export Notes</button>
-</div>
-
-<div class="setting">
-<button onclick="resetNotes()">Reset Notes</button>
-</div>
-
-<div class="setting">
-<button onclick="toggleAnimations()">Toggle Animations</button>
-</div>
-
-<div class="setting">
-<button onclick="performanceMode()">Performance Mode</button>
-</div>
-
-<div class="setting">
-<button onclick="clearStorage()">Clear Local Storage</button>
-</div>
-
-</div>
-
-</div>
-
-<script>
-
-let username="guest"
-
-/* panel switching */
-
-function showPanel(id){
-
-document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"))
-
-document.getElementById(id).classList.add("active")
-
-}
-
-/* chat */
-
-function addMessage(text,type){
-
-let msg=document.createElement("div")
-
-msg.className="msg "+type
-
-msg.innerText=text
-
-chat.appendChild(msg)
-
-chat.scrollTop=chat.scrollHeight
-
-}
-
-/* AI */
-
-async function send(){
-
-let text=aiInput.value
-
-if(!text) return
-
-addMessage(text,"user")
-
-aiInput.value=""
-
-let res=await fetch("/ai",{
-
-method:"POST",
-
-headers:{"Content-Type":"application/json"},
-
-body:JSON.stringify({
-username:username,
-message:text
-})
-
-})
-
-let data=await res.json()
-
-addMessage(data.reply || "AI failed","ai")
-
-}
-
-/* notes */
-
-notesBox.value=localStorage.getItem("notes")||""
-
-function saveNotes(){
-
-localStorage.setItem("notes",notesBox.value)
-
-}
-
-/* export notes */
-
-function exportNotes(){
-
-let blob=new Blob([notesBox.value],{type:"text/plain"})
-
-let a=document.createElement("a")
-
-a.href=URL.createObjectURL(blob)
-
-a.download="notes.txt"
-
-a.click()
-
-}
-
-/* reset notes */
-
-function resetNotes(){
-
-notesBox.value=""
-
-localStorage.removeItem("notes")
-
-}
-
-/* code runner */
-
-function runCode(){
-
-let code=document.getElementById("code").value
-
-let match=code.match(/print\((.*?)\)/)
-
-if(match){
-
-output.innerText=match[1]
-
-}else{
-
-try{output.innerText=eval(code)}
-catch(e){output.innerText=e}
-
-}
-
-}
-
-/* theme */
-
-function toggleTheme(){
-
-document.body.classList.toggle("light")
-
-}
-
-/* settings extras */
-
-function clearChat(){
-chat.innerHTML=""
-}
-
-function toggleAnimations(){
-
-alert("Animations toggled")
-
-}
-
-function performanceMode(){
-
-alert("Performance mode enabled")
-
-}
-
-function clearStorage(){
-
-localStorage.clear()
-
-alert("Storage cleared")
-
-}
-
-</script>
-
-</body>
-</html>
+<button onclick="rbAvatar()">Avatar Viewer</button
