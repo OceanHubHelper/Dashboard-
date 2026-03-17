@@ -1,5 +1,6 @@
 import express from "express"
-import fs from "fs"
+import sqlite3 from "sqlite3"
+import { open } from "sqlite"
 
 const app = express()
 
@@ -8,61 +9,71 @@ app.use(express.static("."))
 
 const HF_API_KEY = process.env.HF_API_KEY
 
-const USERS_FILE = "users.json"
-const CHATS_FILE = "chats.json"
+let db
 
-/* create files if missing */
+async function initDB(){
 
-if(!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE,"{}")
-if(!fs.existsSync(CHATS_FILE)) fs.writeFileSync(CHATS_FILE,"{}")
+db = await open({
+filename:"database.db",
+driver:sqlite3.Database
+})
 
-/* helpers */
+await db.exec(`
 
-function loadUsers(){
-return JSON.parse(fs.readFileSync(USERS_FILE))
+CREATE TABLE IF NOT EXISTS users(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+username TEXT UNIQUE,
+password TEXT
+);
+
+CREATE TABLE IF NOT EXISTS chats(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+username TEXT,
+role TEXT,
+content TEXT
+);
+
+`)
+
 }
 
-function saveUsers(data){
-fs.writeFileSync(USERS_FILE,JSON.stringify(data,null,2))
-}
-
-function loadChats(){
-return JSON.parse(fs.readFileSync(CHATS_FILE))
-}
-
-function saveChats(data){
-fs.writeFileSync(CHATS_FILE,JSON.stringify(data,null,2))
-}
+initDB()
 
 /* SIGNUP */
 
-app.post("/signup",(req,res)=>{
+app.post("/signup", async(req,res)=>{
 
 const {username,password}=req.body
 
-let users=loadUsers()
+try{
 
-if(users[username]){
-return res.json({error:"User already exists"})
-}
-
-users[username]={password}
-
-saveUsers(users)
+await db.run(
+"INSERT INTO users (username,password) VALUES (?,?)",
+[username,password]
+)
 
 res.json({success:true})
+
+}catch{
+
+res.json({error:"Username already exists"})
+
+}
 
 })
 
 /* LOGIN */
 
-app.post("/login",(req,res)=>{
+app.post("/login", async(req,res)=>{
 
 const {username,password}=req.body
 
-let users=loadUsers()
+let user = await db.get(
+"SELECT * FROM users WHERE username=? AND password=?",
+[username,password]
+)
 
-if(!users[username] || users[username].password!==password){
+if(!user){
 return res.json({error:"Invalid login"})
 }
 
@@ -72,23 +83,25 @@ res.json({success:true})
 
 /* AI CHAT WITH MEMORY */
 
-app.post("/ai",async(req,res)=>{
+app.post("/ai", async(req,res)=>{
 
 try{
 
 const {username,message}=req.body
 
-let chats=loadChats()
+await db.run(
+"INSERT INTO chats (username,role,content) VALUES (?,?,?)",
+[username,"user",message]
+)
 
-if(!chats[username]) chats[username]=[]
+let memory = await db.all(
+"SELECT role,content FROM chats WHERE username=? ORDER BY id DESC LIMIT 10",
+[username]
+)
 
-chats[username].push({role:"user",content:message})
+memory.reverse()
 
-/* keep last 10 messages */
-
-let memory=chats[username].slice(-10)
-
-const response=await fetch(
+const response = await fetch(
 "https://router.huggingface.co/v1/chat/completions",
 {
 method:"POST",
@@ -103,13 +116,14 @@ messages:memory
 }
 )
 
-const data=await response.json()
+const data = await response.json()
 
-let reply=data?.choices?.[0]?.message?.content || "AI failed"
+let reply = data?.choices?.[0]?.message?.content || "AI failed"
 
-chats[username].push({role:"assistant",content:reply})
-
-saveChats(chats)
+await db.run(
+"INSERT INTO chats (username,role,content) VALUES (?,?,?)",
+[username,"assistant",reply]
+)
 
 res.json({reply})
 
