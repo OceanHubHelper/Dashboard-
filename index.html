@@ -3,71 +3,63 @@
 <head>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <title>Home Dashboard</title>
 
 <style>
 
-/* THEMES */
-
 body{
 margin:0;
 font-family:-apple-system,BlinkMacSystemFont,Arial;
-background:#161616;
-color:#e8e8e8;
-overflow:hidden;
+background:#1b1b1b;
+color:#e6e6e6;
 }
 
-body.light{
-background:#f4f4f4;
-color:#111;
-}
+/* particle background */
 
-/* PARTICLE CANVAS */
-
-#particles{
+canvas{
 position:fixed;
 top:0;
 left:0;
-width:100%;
-height:100%;
 z-index:-1;
 }
 
-/* APP CONTAINER */
+/* dashboard */
 
 .app{
 
 width:95%;
-max-width:950px;
+max-width:1000px;
 height:92vh;
 
 margin:auto;
 margin-top:4vh;
 
-background:rgba(30,30,30,0.9);
+background:#262626;
 
 border-radius:20px;
 
-padding:20px;
-
 display:flex;
 flex-direction:column;
+
+padding:20px;
 
 box-shadow:0 0 40px rgba(0,0,0,0.5);
 
 }
 
-/* HEADER */
+/* header */
 
 .header{
+
 display:flex;
 justify-content:space-between;
 align-items:center;
+
 font-size:22px;
+
 }
 
-/* NAVIGATION */
+/* nav */
 
 .nav{
 display:flex;
@@ -75,16 +67,17 @@ gap:10px;
 margin:10px 0;
 }
 
-/* BUTTONS */
+/* buttons */
 
 button{
 
 padding:10px 16px;
 
 border:none;
+
 border-radius:12px;
 
-background:linear-gradient(135deg,#3a3a3a,#2b2b2b);
+background:linear-gradient(135deg,#444,#333);
 
 color:white;
 
@@ -92,19 +85,17 @@ cursor:pointer;
 
 transition:.25s;
 
-box-shadow:0 4px 15px rgba(0,0,0,.4);
-
 }
 
 button:hover{
 
 transform:scale(1.05);
 
-background:linear-gradient(135deg,#5a5a5a,#404040);
+background:linear-gradient(135deg,#666,#444);
 
 }
 
-/* PANELS */
+/* panels */
 
 .panel{
 flex:1;
@@ -116,7 +107,7 @@ overflow:auto;
 display:block;
 }
 
-/* CHAT */
+/* chat */
 
 .chat{
 
@@ -124,47 +115,41 @@ height:360px;
 
 overflow:auto;
 
-padding:10px;
-
 background:#1c1c1c;
 
 border-radius:12px;
+
+padding:10px;
 
 display:flex;
 flex-direction:column;
 
 }
 
-/* MESSAGE */
+/* messages */
 
 .msg{
 
 padding:10px;
 
-margin:5px 0;
+margin:6px 0;
 
-border-radius:14px;
+border-radius:12px;
 
 max-width:75%;
 
 }
 
 .user{
-background:#4a67ff;
+background:#4b6cff;
 margin-left:auto;
 }
 
 .ai{
-background:#3b3b3b;
+background:#3a3a3a;
 }
 
-/* INPUT */
-
-.inputArea{
-display:flex;
-gap:10px;
-margin-top:10px;
-}
+/* inputs */
 
 input,textarea{
 
@@ -172,53 +157,29 @@ width:100%;
 
 padding:12px;
 
-border-radius:12px;
-
 border:none;
 
-background:#2c2c2c;
+border-radius:12px;
+
+background:#333;
 
 color:white;
 
 }
 
-/* SCROLL BUTTON */
+/* input area */
 
-.scrollBtn{
-
-position:absolute;
-bottom:120px;
-right:40px;
-
-display:none;
-
+.inputArea{
+display:flex;
+gap:10px;
+margin-top:10px;
 }
 
-/* START PAGE */
+/* account */
 
-.start{
-
-position:absolute;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-
-background:#222;
-
-padding:30px;
-
-border-radius:20px;
-
-width:320px;
-
-text-align:center;
-
-}
-
-/* SETTINGS */
-
-.setting{
-margin-bottom:12px;
+.accountBox{
+max-width:400px;
+margin:auto;
 }
 
 </style>
@@ -228,81 +189,11 @@ margin-bottom:12px;
 
 <canvas id="particles"></canvas>
 
-<!-- START PAGE -->
-
-<div class="start" id="startPage">
-
-<h2>Home Dashboard</h2>
-
-<button onclick="openLogin()">Login</button>
-<br><br>
-<button onclick="openSignup()">Sign Up</button>
-<br><br>
-<button onclick="openTerms()">Terms of Service</button>
-
-</div>
-
-<!-- LOGIN -->
-
-<div class="start hidden" id="loginPage">
-
-<h3>Login</h3>
-
-<input id="loginUser" placeholder="Username">
-<input id="loginPass" type="password" placeholder="Password">
-
-<button onclick="login()">Login</button>
-
-<br><br>
-
-<button onclick="backStart()">Back</button>
-
-</div>
-
-<!-- SIGNUP -->
-
-<div class="start hidden" id="signupPage">
-
-<h3>Create Account</h3>
-
-<input id="signUser" placeholder="Username">
-<input id="signPass" type="password" placeholder="Password">
-
-<button onclick="signup()">Create</button>
-
-<br><br>
-
-<button onclick="backStart()">Back</button>
-
-</div>
-
-<!-- TERMS -->
-
-<div class="start hidden" id="termsPage">
-
-<h3>Terms of Service</h3>
-
-<p style="font-size:14px">
-
-Use responsibly.  
-Do not spam the AI.  
-No illegal or harmful use.
-
-</p>
-
-<button onclick="backStart()">Back</button>
-
-</div>
-
-<!-- DASHBOARD -->
-
-<div class="app hidden" id="app">
+<div class="app">
 
 <div class="header">
 
 Home Dashboard
-
-<button onclick="logout()">Logout</button>
 
 </div>
 
@@ -312,6 +203,7 @@ Home Dashboard
 <button onclick="showPanel('notes')">Notes</button>
 <button onclick="showPanel('runner')">Code</button>
 <button onclick="showPanel('files')">Files</button>
+<button onclick="showPanel('account')">Account</button>
 <button onclick="showPanel('settings')">Settings</button>
 
 </div>
@@ -321,8 +213,6 @@ Home Dashboard
 <div class="panel active" id="ai">
 
 <div class="chat" id="chat"></div>
-
-<button class="scrollBtn" id="scrollBtn" onclick="scrollDown()">⬇ Latest</button>
 
 <div class="inputArea">
 
@@ -340,13 +230,13 @@ Home Dashboard
 
 <h3>Notes</h3>
 
-<textarea id="notesBox" rows="12"></textarea>
+<textarea id="notesBox"></textarea>
 
 <button onclick="saveNotes()">Save</button>
 
 </div>
 
-<!-- CODE RUNNER -->
+<!-- CODE -->
 
 <div class="panel" id="runner">
 
@@ -372,19 +262,39 @@ Home Dashboard
 
 </div>
 
+<!-- ACCOUNT -->
+
+<div class="panel" id="account">
+
+<div class="accountBox">
+
+<h3>Login</h3>
+
+<input id="loginUser" placeholder="Username">
+<input id="loginPass" type="password" placeholder="Password">
+
+<button onclick="login()">Login</button>
+
+<h3>Create Account</h3>
+
+<input id="signUser" placeholder="Username">
+<input id="signPass" type="password" placeholder="Password">
+
+<button onclick="signup()">Sign Up</button>
+
+</div>
+
+</div>
+
 <!-- SETTINGS -->
 
 <div class="panel" id="settings">
 
 <h3>Settings</h3>
 
-<div class="setting">
-<button onclick="toggleTheme()">Toggle Dark/Light Theme</button>
-</div>
+<button onclick="toggleTheme()">Toggle Theme</button>
 
-<div class="setting">
 <button onclick="clearChat()">Clear Chat</button>
-</div>
 
 </div>
 
@@ -392,22 +302,9 @@ Home Dashboard
 
 <script>
 
-/* PAGE NAV */
+let username=""
 
-function hideAll(){
-
-["startPage","loginPage","signupPage","termsPage"].forEach(id=>{
-document.getElementById(id).style.display="none"
-})
-
-}
-
-function openLogin(){hideAll();loginPage.style.display="block"}
-function openSignup(){hideAll();signupPage.style.display="block"}
-function openTerms(){hideAll();termsPage.style.display="block"}
-function backStart(){hideAll();startPage.style.display="block"}
-
-/* PANEL NAV */
+/* panels */
 
 function showPanel(id){
 
@@ -417,61 +314,7 @@ document.getElementById(id).classList.add("active")
 
 }
 
-/* LOGIN */
-
-let username=""
-
-async function login(){
-
-let u=loginUser.value
-let p=loginPass.value
-
-let res=await fetch("/login",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({username:u,password:p})
-})
-
-let data=await res.json()
-
-if(data.error) alert(data.error)
-else{
-
-username=u
-
-hideAll()
-
-app.classList.remove("hidden")
-
-}
-
-}
-
-async function signup(){
-
-let u=signUser.value
-let p=signPass.value
-
-let res=await fetch("/signup",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({username:u,password:p})
-})
-
-let data=await res.json()
-
-if(data.error) alert(data.error)
-else alert("Account created")
-
-}
-
-/* LOGOUT */
-
-function logout(){
-location.reload()
-}
-
-/* CHAT */
+/* chat */
 
 function addMessage(text,type){
 
@@ -486,6 +329,8 @@ chat.appendChild(msg)
 chat.scrollTop=chat.scrollHeight
 
 }
+
+/* send */
 
 async function send(){
 
@@ -516,7 +361,61 @@ addMessage(data.reply,"ai")
 
 }
 
-/* NOTES */
+/* login */
+
+async function login(){
+
+let u=loginUser.value
+let p=loginPass.value
+
+let res=await fetch("/login",{
+
+method:"POST",
+
+headers:{"Content-Type":"application/json"},
+
+body:JSON.stringify({username:u,password:p})
+
+})
+
+let data=await res.json()
+
+if(data.error) alert(data.error)
+else{
+
+username=u
+
+alert("Logged in")
+
+}
+
+}
+
+/* signup */
+
+async function signup(){
+
+let u=signUser.value
+let p=signPass.value
+
+let res=await fetch("/signup",{
+
+method:"POST",
+
+headers:{"Content-Type":"application/json"},
+
+body:JSON.stringify({username:u,password:p})
+
+})
+
+let data=await res.json()
+
+if(data.error) alert(data.error)
+else alert("Account created")
+
+}
+
+/* notes */
 
 notesBox.value=localStorage.getItem("notes")||""
 
@@ -526,7 +425,7 @@ localStorage.setItem("notes",notesBox.value)
 
 }
 
-/* CODE RUNNER */
+/* code runner */
 
 function runCode(){
 
@@ -547,29 +446,17 @@ catch(e){output.innerText=e}
 
 }
 
-/* FILES */
-
-fileInput.addEventListener("change",()=>{
-
-let file=fileInput.files[0]
-
-let item=document.createElement("div")
-
-item.innerText=file.name
-
-fileList.appendChild(item)
-
-})
-
-/* SETTINGS */
+/* settings */
 
 function toggleTheme(){
-
 document.body.classList.toggle("light")
-
 }
 
-/* PARTICLES */
+function clearChat(){
+chat.innerHTML=""
+}
+
+/* particles */
 
 const canvas=document.getElementById("particles")
 const ctx=canvas.getContext("2d")
@@ -582,11 +469,13 @@ let particles=[]
 for(let i=0;i<80;i++){
 
 particles.push({
+
 x:Math.random()*canvas.width,
 y:Math.random()*canvas.height,
 r:Math.random()*2+1,
 dx:Math.random()-0.5,
 dy:Math.random()-0.5
+
 })
 
 }
