@@ -15,6 +15,8 @@ color:white;
 display:flex;
 }
 
+/* sidebar */
+
 .sidebar{
 width:220px;
 background:#1e1e1e;
@@ -33,6 +35,8 @@ color:white;
 cursor:pointer;
 }
 
+/* main */
+
 .main{
 flex:1;
 padding:20px;
@@ -43,23 +47,49 @@ height:100vh;
 .panel{display:none}
 .panel.active{display:block}
 
+/* chat */
+
 .chat{
 background:#202020;
 padding:10px;
-height:300px;
+height:320px;
 overflow:auto;
 border-radius:10px;
 }
 
+.msgUser{
+background:#3f6cff;
+padding:8px;
+border-radius:8px;
+margin:6px 0;
+}
+
+.msgAI{
+background:#2a2a2a;
+padding:8px;
+border-radius:8px;
+margin:6px 0;
+}
+
+/* inputs */
+
 textarea{
 width:100%;
-height:180px;
+height:200px;
 background:#202020;
 color:white;
 border:none;
 padding:10px;
 border-radius:10px;
 }
+
+input{
+padding:8px;
+border-radius:6px;
+border:none;
+}
+
+/* buttons */
 
 button{
 margin-top:6px;
@@ -71,27 +101,22 @@ color:white;
 cursor:pointer;
 }
 
-.msgUser{
-background:#345cff;
-padding:6px;
-border-radius:6px;
-margin:4px 0;
-}
-
-.msgAI{
-background:#2a2a2a;
-padding:6px;
-border-radius:6px;
-margin:4px 0;
-}
+/* history */
 
 .history{
 background:#1f1f1f;
 padding:10px;
 border-radius:10px;
-max-height:120px;
+max-height:140px;
 overflow:auto;
 }
+
+.historyItem{
+margin-bottom:6px;
+cursor:pointer;
+}
+
+/* particles */
 
 #particles{
 position:fixed;
@@ -107,6 +132,8 @@ z-index:-1;
 <body>
 
 <canvas id="particles"></canvas>
+
+<!-- SIDEBAR -->
 
 <div class="sidebar">
 
@@ -124,7 +151,7 @@ z-index:-1;
 
 <div class="main">
 
-<!-- AI -->
+<!-- AI CHAT -->
 
 <div class="panel active" id="ai">
 
@@ -134,10 +161,11 @@ z-index:-1;
 
 <input id="aiInput" placeholder="Ask AI">
 <button onclick="send()">Send</button>
+<button onclick="clearChat()">Clear</button>
 
 </div>
 
-<!-- CODE -->
+<!-- SCRIPT BUILDER -->
 
 <div class="panel" id="code">
 
@@ -150,9 +178,9 @@ z-index:-1;
 
 <h3>AI Script Helper</h3>
 
-<div id="scriptChat" class="chat"></div>
+<div class="chat" id="scriptChat"></div>
 
-<input id="scriptInput" placeholder="Ask AI about code">
+<input id="scriptInput" placeholder="Ask AI about the script">
 <button onclick="askScriptAI()">Ask AI</button>
 
 <h3>Code History</h3>
@@ -170,6 +198,8 @@ z-index:-1;
 <button onclick="rbPlayer()">Player Lookup</button>
 <button onclick="rbAvatar()">Avatar Viewer</button>
 <button onclick="rbGame()">Game Search</button>
+<button onclick="rbServers()">Server Finder</button>
+<button onclick="rbBadges()">Badge Viewer</button>
 
 <div id="rbPanel"></div>
 
@@ -227,6 +257,8 @@ z-index:-1;
 
 <script>
 
+/* tab switching */
+
 function showPanel(id){
 document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"))
 document.getElementById(id).classList.add("active")
@@ -234,9 +266,10 @@ document.getElementById(id).classList.add("active")
 
 /* AI CHAT */
 
-function send(){
+async function send(){
 
-let text=aiInput.value
+let text = aiInput.value
+if(!text) return
 
 let msg=document.createElement("div")
 msg.className="msgUser"
@@ -245,9 +278,41 @@ chat.appendChild(msg)
 
 aiInput.value=""
 
-typeAI("AI response placeholder",chat)
+/* loading */
+
+let loading=document.createElement("div")
+loading.className="msgAI"
+loading.innerText="Thinking..."
+chat.appendChild(loading)
+
+chat.scrollTop=chat.scrollHeight
+
+try{
+
+let res=await fetch("/ai",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+username:"user",
+message:text
+})
+})
+
+let data=await res.json()
+
+loading.remove()
+
+typeAI(data.reply || "AI failed",chat)
+
+}catch(e){
+
+loading.innerText="AI error"
 
 }
+
+}
+
+/* typing animation */
 
 function typeAI(text,container){
 
@@ -258,14 +323,25 @@ container.appendChild(div)
 let i=0
 
 let interval=setInterval(()=>{
+
 div.innerText+=text[i]
 i++
-if(i>=text.length)clearInterval(interval)
-},20)
+
+container.scrollTop=container.scrollHeight
+
+if(i>=text.length) clearInterval(interval)
+
+},15)
 
 }
 
-/* CODE */
+/* clear chat */
+
+function clearChat(){
+chat.innerHTML=""
+}
+
+/* script runner */
 
 function runCode(){
 
@@ -273,54 +349,72 @@ let code=codeArea.value
 
 try{
 let result=eval(code)
-saveHistory(code)
 alert(result)
 }catch(e){
 alert(e)
 }
 
+saveHistory(code)
+
 }
+
+/* copy code */
 
 function copyCode(){
 navigator.clipboard.writeText(codeArea.value)
 }
 
+/* save history */
+
 function saveHistory(code){
 
 let item=document.createElement("div")
-item.innerText=new Date().toLocaleString()
+
+item.className="historyItem"
+
+let date=new Date().toLocaleString()
+
+item.innerText=date+" (click to load)"
+
 item.onclick=()=>codeArea.value=code
 
 history.prepend(item)
 
 }
 
-/* SCRIPT AI */
+/* script AI */
 
-function askScriptAI(){
+async function askScriptAI(){
 
 let code=codeArea.value
 let question=scriptInput.value
 
-typeAI("Analyzing script: "+code,scriptChat)
+typeAI("Analyzing script...",scriptChat)
+
+let res=await fetch("/ai",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+username:"script",
+message:"Analyze this code:\n"+code+"\nQuestion:"+question
+})
+})
+
+let data=await res.json()
+
+typeAI(data.reply,scriptChat)
 
 }
 
-/* ROBLOX PLACEHOLDER */
+/* roblox placeholders */
 
-function rbPlayer(){
-rbPanel.innerText="Player lookup tool"
-}
+function rbPlayer(){rbPanel.innerText="Player lookup tool"}
+function rbAvatar(){rbPanel.innerText="Avatar viewer"}
+function rbGame(){rbPanel.innerText="Game search"}
+function rbServers(){rbPanel.innerText="Server finder"}
+function rbBadges(){rbPanel.innerText="Badge viewer"}
 
-function rbAvatar(){
-rbPanel.innerText="Avatar viewer"
-}
-
-function rbGame(){
-rbPanel.innerText="Game search"
-}
-
-/* NOTES */
+/* notes */
 
 function saveNotes(){
 localStorage.notes=notesBox.value
@@ -336,20 +430,18 @@ a.click()
 
 }
 
-/* API TEST */
+/* api tester */
 
 async function testAPI(){
 
-let url=apiUrl.value
-
-let res=await fetch(url)
+let res=await fetch(apiUrl.value)
 let data=await res.text()
 
 apiResult.innerText=data
 
 }
 
-/* THEME */
+/* theme */
 
 function toggleTheme(){
 
@@ -358,7 +450,7 @@ document.body.style.background=="white"?"#151515":"white"
 
 }
 
-/* PARTICLES */
+/* particles */
 
 const canvas=document.getElementById("particles")
 const ctx=canvas.getContext("2d")
