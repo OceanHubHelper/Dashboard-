@@ -9,73 +9,28 @@
 
 <style>
 
-/* PARALLAX INTRO */
-
-.parallax{
+.centerPage{
 height:100vh;
 display:flex;
-flex-direction:column;
-justify-content:center;
 align-items:center;
-text-align:center;
+justify-content:center;
+background:#111;
+}
+
+.loginBox{
+background:#1e1e1e;
 padding:40px;
+border-radius:16px;
+width:320px;
 }
 
-.parallax h1{
-font-size:60px;
+.hidden{
+display:none;
 }
 
-.parallax p{
-max-width:600px;
-font-size:20px;
-opacity:.8;
-}
-
-/* PARTICLES */
-
-#particles{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-z-index:-1;
-}
-
-/* SCRIPT BUILDER */
-
-.scriptLayout{
-display:flex;
-gap:20px;
-height:420px;
-}
-
-.scriptEditor{
-flex:1;
-display:flex;
-flex-direction:column;
-}
-
-.scriptAI{
-width:40%;
-background:#1b1b1b;
-border-radius:14px;
-padding:10px;
-overflow:auto;
-}
-
-.aiMessage{
-margin:6px 0;
-padding:8px;
-background:#2a2a2a;
-border-radius:10px;
-}
-
-.applyBox{
-margin-top:10px;
-padding:10px;
-background:#222;
-border-radius:10px;
+.tosLink{
+font-weight:bold;
+cursor:pointer;
 }
 
 </style>
@@ -84,81 +39,76 @@ border-radius:10px;
 
 <body>
 
-<canvas id="particles"></canvas>
+<!-- SIGN IN PAGE -->
 
-<!-- PARALLAX INTRO -->
-
-<section class="parallax">
-
-<h1>AI Dashboard</h1>
-
-<p>
-A powerful AI dashboard combining scripting,
-Roblox tools, and intelligent automation.
-</p>
-
-</section>
-
-<section class="parallax">
-
-<h1>Smart scripting</h1>
-
-<p>
-Write code, analyze scripts, and let AI help
-improve and debug your work instantly.
-</p>
-
-</section>
-
-<section class="parallax">
-
-<h1>Developer tools</h1>
-
-<p>
-Explore Roblox data, generate scripts,
-and build projects with powerful AI assistance.
-</p>
-
-<button onclick="openLogin()">Continue</button>
-
-</section>
-
-<!-- LOGIN -->
-
-<div id="loginPage" class="startPage hidden">
+<div id="loginPage" class="centerPage">
 
 <div class="loginBox">
 
 <h2>Sign In</h2>
 
 <input id="loginUser" placeholder="Username">
+
 <input id="loginPass" type="password" placeholder="Password">
 
 <button onclick="login()">Sign In</button>
 
-<p onclick="openSignup()">Create account</p>
+<p onclick="showSignup()" style="cursor:pointer;margin-top:15px">
+Create account
+</p>
 
 </div>
 
 </div>
 
-<!-- SIGNUP -->
+<!-- SIGNUP PAGE -->
 
-<div id="signupPage" class="startPage hidden">
+<div id="signupPage" class="centerPage hidden">
 
 <div class="loginBox">
 
 <h2>Create Account</h2>
 
 <input id="signupUser" placeholder="Username">
+
 <input id="signupPass" type="password" placeholder="Password">
 
 <label>
 <input type="checkbox" id="termsCheck">
-I agree to the <b>Terms of Service</b>
+I agree to the <span class="tosLink" onclick="showTerms()">Terms of Service</span>
 </label>
 
 <button onclick="signup()">Create Account</button>
+
+<p onclick="showLogin()" style="cursor:pointer;margin-top:15px">
+Back to login
+</p>
+
+</div>
+
+</div>
+
+<!-- TERMS MODAL -->
+
+<div id="termsModal" class="centerPage hidden">
+
+<div class="loginBox">
+
+<h3>Terms of Service</h3>
+
+<p style="font-size:14px;line-height:1.6">
+
+By using this dashboard you agree to use the platform responsibly.
+The AI tools provided may generate automated responses and scripts.
+
+You agree not to exploit, abuse, overload, or misuse the platform.
+
+This software is experimental and no guarantees are provided
+for generated content or scripts.
+
+</p>
+
+<button onclick="closeTerms()">Close</button>
 
 </div>
 
@@ -180,8 +130,6 @@ I agree to the <b>Terms of Service</b>
 
 </div>
 
-<!-- AI CHAT -->
-
 <div class="panel active" id="ai">
 
 <div class="chat" id="chat"></div>
@@ -192,69 +140,27 @@ I agree to the <b>Terms of Service</b>
 
 </div>
 
-<!-- SCRIPT BUILDER -->
-
 <div class="panel" id="code">
-
-<div class="scriptLayout">
-
-<div class="scriptEditor">
 
 <textarea id="codeArea">print("hello")</textarea>
 
-<button onclick="runCode()">Run</button>
-
-<button onclick="copyCode()">Copy</button>
-
-<div id="output"></div>
-
 </div>
-
-<div class="scriptAI">
-
-<h3>AI Script Helper</h3>
-
-<div id="scriptChat"></div>
-
-<input id="scriptInput" placeholder="Ask AI about script">
-
-<button onclick="askScriptAI()">Ask AI</button>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- NOTES -->
 
 <div class="panel" id="notes">
 
 <textarea id="notesBox"></textarea>
 
-<button onclick="saveNotes()">Save</button>
-
 </div>
-
-<!-- ROBLOX -->
 
 <div class="panel" id="roblox">
 
 <button onclick="rbPlayer()">Player Lookup</button>
-<button onclick="rbAvatar()">Avatar Viewer</button>
-<button onclick="rbGame()">Game Info</button>
 
 <div id="rbPanel"></div>
 
 </div>
 
-<!-- SETTINGS -->
-
 <div class="panel" id="settings">
-
-<button onclick="toggleTheme()">Dark / Light Mode</button>
-
-<button onclick="toggleParticles()">Toggle Particles</button>
 
 <button onclick="logout()">Logout</button>
 
@@ -268,191 +174,118 @@ I agree to the <b>Terms of Service</b>
 
 <script>
 
-/* AI TYPING ANIMATION */
+/* PAGE SWITCHING */
 
-function typeAI(text,container){
+function showSignup(){
 
-let i=0
+loginPage.classList.add("hidden")
 
-let div=document.createElement("div")
-div.className="aiMessage"
-container.appendChild(div)
-
-let interval=setInterval(()=>{
-
-div.innerText+=text[i]
-
-i++
-
-if(i>=text.length){
-clearInterval(interval)
-}
-
-},15)
+signupPage.classList.remove("hidden")
 
 }
 
-/* SCRIPT AI */
+function showLogin(){
 
-async function askScriptAI(){
+signupPage.classList.add("hidden")
 
-let question=scriptInput.value
+loginPage.classList.remove("hidden")
 
-let code=document.getElementById("codeArea").value
+}
 
-let res=await fetch("/ai",{
+/* TERMS */
+
+function showTerms(){
+
+termsModal.classList.remove("hidden")
+
+}
+
+function closeTerms(){
+
+termsModal.classList.add("hidden")
+
+}
+
+/* LOGIN */
+
+async function login(){
+
+let res=await fetch("/login",{
 
 method:"POST",
+
 headers:{"Content-Type":"application/json"},
+
 body:JSON.stringify({
-username:"script",
-message:"Analyze this code: "+code+" Question: "+question
+
+username:loginUser.value,
+
+password:loginPass.value
+
 })
 
 })
 
 let data=await res.json()
 
-typeAI(data.reply,scriptChat)
+if(data.error){
 
-/* detect code suggestion */
+alert(data.error)
 
-if(data.reply.includes("```")){
-
-let suggestion=data.reply.split("```")[1]
-
-let box=document.createElement("div")
-box.className="applyBox"
-
-box.innerHTML=`
-Make changes to script?<br>
-<button onclick="applyCode(\`${suggestion}\`)">Apply</button>
-`
-
-scriptChat.appendChild(box)
+return
 
 }
 
-}
+/* hide login */
 
-function applyCode(newCode){
-
-document.getElementById("codeArea").value=newCode
-
-}
-
-/* PARTICLES */
-
-const canvas=document.getElementById("particles")
-const ctx=canvas.getContext("2d")
-
-canvas.width=window.innerWidth
-canvas.height=window.innerHeight
-
-let particles=[]
-
-for(let i=0;i<80;i++){
-
-particles.push({
-x:Math.random()*canvas.width,
-y:Math.random()*canvas.height,
-r:Math.random()*2+1,
-dx:Math.random()-0.5,
-dy:Math.random()-0.5
-})
-
-}
-
-function animate(){
-
-ctx.clearRect(0,0,canvas.width,canvas.height)
-
-particles.forEach(p=>{
-
-ctx.beginPath()
-ctx.arc(p.x,p.y,p.r,0,Math.PI*2)
-ctx.fillStyle="#555"
-ctx.fill()
-
-p.x+=p.dx
-p.y+=p.dy
-
-})
-
-requestAnimationFrame(animate)
-
-}
-
-animate()
-
-function toggleParticles(){
-
-canvas.style.display =
-canvas.style.display==="none" ? "block":"none"
-
-}
-
-/* LOGIN FLOW */
-
-function openLogin(){
-loginPage.classList.remove("hidden")
-}
-
-function openSignup(){
 loginPage.classList.add("hidden")
-signupPage.classList.remove("hidden")
+
+/* show dashboard */
+
+dashboard.classList.remove("hidden")
+
 }
+
+/* SIGNUP */
 
 async function signup(){
 
 if(!termsCheck.checked){
+
 alert("You must agree to the Terms of Service")
+
 return
+
 }
 
 let res=await fetch("/signup",{
+
 method:"POST",
+
 headers:{"Content-Type":"application/json"},
+
 body:JSON.stringify({
+
 username:signupUser.value,
+
 password:signupPass.value
+
 })
+
 })
 
 let data=await res.json()
 
 alert("Account created")
 
-signupPage.classList.add("hidden")
-loginPage.classList.remove("hidden")
-
-}
-
-async function login(){
-
-let res=await fetch("/login",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-username:loginUser.value,
-password:loginPass.value
-})
-})
-
-let data=await res.json()
-
-if(data.error){
-alert(data.error)
-return
-}
-
-loginPage.classList.add("hidden")
-dashboard.classList.remove("hidden")
+showLogin()
 
 }
 
 function logout(){
+
 location.reload()
+
 }
 
 </script>
