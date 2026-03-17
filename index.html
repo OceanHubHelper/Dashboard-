@@ -2,122 +2,146 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Future Dashboard</title>
+<title>Future AI Dashboard</title>
 
 <style>
 
 body{
 margin:0;
-font-family:Arial;
-background:linear-gradient(135deg,#0f2027,#000000);
+font-family:Arial, Helvetica, sans-serif;
+background:#0b0b0b;
 color:white;
-overflow:hidden;
+transition:0.3s;
 }
 
-/* center elements */
+/* light mode */
 
-.center{
+body.light{
+background:#f2f2f2;
+color:#111;
+}
+
+/* center device */
+
+.device{
 position:absolute;
 top:50%;
 left:50%;
 transform:translate(-50%,-50%);
-text-align:center;
+width:900px;
+height:600px;
+background:rgba(20,20,20,0.9);
+border-radius:25px;
+box-shadow:0 0 60px rgba(0,255,255,0.25);
+padding:25px;
+display:flex;
+flex-direction:column;
 }
 
-/* title animation */
+body.light .device{
+background:white;
+}
+
+/* header */
+
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+}
 
 .title{
-font-size:48px;
-background:linear-gradient(90deg,#00f7ff,#00ffb3,#00f7ff);
-background-size:200%;
--webkit-background-clip:text;
-color:transparent;
-animation:glow 5s linear infinite;
-}
-
-@keyframes glow{
-0%{background-position:0%}
-100%{background-position:200%}
-}
-
-/* inputs */
-
-input{
-padding:12px;
-margin:10px;
-border:none;
-border-radius:10px;
-width:230px;
+font-size:28px;
+font-weight:bold;
 }
 
 /* buttons */
 
 button{
-padding:12px 30px;
-margin:10px;
+padding:10px 18px;
 border:none;
-border-radius:12px;
-background:linear-gradient(45deg,#00c6ff,#0072ff);
+border-radius:10px;
+background:#00aaff;
 color:white;
-font-size:16px;
 cursor:pointer;
-transition:.3s;
+transition:0.2s;
 }
 
 button:hover{
-transform:scale(1.1);
-box-shadow:0 0 20px #00c6ff;
+transform:scale(1.05);
+box-shadow:0 0 15px #00aaff;
 }
 
-/* dashboard */
+/* nav */
 
-#dashboard{
-display:none;
+.nav{
+display:flex;
+gap:10px;
+margin-bottom:15px;
 }
 
 /* panels */
 
 .panel{
-display:none;
-position:absolute;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-width:75%;
-height:75%;
-background:rgba(0,0,0,.85);
-border-radius:20px;
-padding:20px;
-box-shadow:0 0 40px cyan;
+flex:1;
+background:rgba(0,0,0,0.5);
+border-radius:15px;
+padding:15px;
 overflow:auto;
+display:none;
 }
 
-textarea{
+.panel.active{
+display:block;
+}
+
+body.light .panel{
+background:#eeeeee;
+}
+
+/* AI chat */
+
+.chat{
+height:350px;
+overflow:auto;
+margin-bottom:10px;
+}
+
+.msg{
+margin:5px 0;
+padding:8px 12px;
+border-radius:10px;
+max-width:70%;
+}
+
+.user{
+background:#0077ff;
+align-self:flex-end;
+}
+
+.ai{
+background:#444;
+}
+
+body.light .ai{
+background:#ddd;
+}
+
+/* inputs */
+
+input,textarea{
 width:100%;
-height:200px;
-background:#111;
-color:#00ffff;
+padding:10px;
+border-radius:10px;
 border:none;
-padding:10px;
-border-radius:10px;
+margin-top:5px;
 }
 
-.output{
-margin-top:10px;
-background:#000;
-padding:10px;
-color:#0f0;
-border-radius:10px;
-}
+/* settings */
 
-/* close button */
-
-.close{
-position:absolute;
-right:20px;
-top:15px;
-font-size:22px;
-cursor:pointer;
+.setting{
+margin-bottom:10px;
 }
 
 </style>
@@ -125,147 +149,121 @@ cursor:pointer;
 
 <body>
 
-<!-- LOGIN -->
+<div class="device">
 
-<div class="center" id="login">
-
-<div class="title">LOGIN</div>
-
-<input id="user" placeholder="Username"><br>
-<input id="pass" type="password" placeholder="Password"><br>
-
-<button onclick="login()">Enter</button>
-
+<div class="header">
+<div class="title">Future AI Dashboard</div>
+<button onclick="toggleTheme()">🌙 / ☀️</button>
 </div>
 
-
-<!-- DASHBOARD -->
-
-<div id="dashboard" class="center">
-
-<div class="title">FUTURE DASHBOARD</div>
-
-<br>
-
-<button onclick="openPanel('ai')">AI</button>
-<button onclick="openPanel('notes')">Notes</button>
-<button onclick="openPanel('scripts')">Script Runner</button>
-
+<div class="nav">
+<button onclick="showPanel('ai')">AI</button>
+<button onclick="showPanel('notes')">Notes</button>
+<button onclick="showPanel('scripts')">Scripts</button>
+<button onclick="showPanel('settings')">Settings</button>
 </div>
-
 
 <!-- AI PANEL -->
 
-<div class="panel" id="ai">
+<div class="panel active" id="ai">
 
-<div class="close" onclick="closePanel('ai')">✕</div>
+<div class="chat" id="chat"></div>
 
-<h2>AI Assistant</h2>
+<input id="aiInput" placeholder="Ask AI...">
 
-<input id="aiInput" placeholder="Ask AI..." style="width:70%">
-
-<button onclick="askAI()">Ask</button>
-
-<div id="aiOutput"></div>
+<button onclick="askAI()">Send</button>
 
 </div>
 
-
-<!-- NOTES PANEL -->
+<!-- NOTES -->
 
 <div class="panel" id="notes">
 
-<div class="close" onclick="closePanel('notes')">✕</div>
+<h3>Notes</h3>
 
-<h2>Notes</h2>
+<textarea id="notesBox" rows="10"></textarea>
 
-<textarea id="notesBox"></textarea>
-
-<br>
-
-<button onclick="saveNotes()">Save Notes</button>
+<button onclick="saveNotes()">Save</button>
 
 </div>
-
 
 <!-- SCRIPT RUNNER -->
 
 <div class="panel" id="scripts">
 
-<div class="close" onclick="closePanel('scripts')">✕</div>
+<h3>Script Runner</h3>
 
-<h2>Script Runner</h2>
+<textarea id="code" rows="10">console.log("hello world")</textarea>
 
-<textarea id="code">console.log("Hello world")</textarea>
+<button onclick="runCode()">Run</button>
 
-<br>
-
-<button onclick="runCode()">Run Code</button>
-
-<div class="output" id="output"></div>
+<div id="output"></div>
 
 </div>
 
+<!-- SETTINGS -->
+
+<div class="panel" id="settings">
+
+<h3>Settings</h3>
+
+<div class="setting">
+<label>AI typing animation</label>
+<input type="checkbox" id="typingToggle" checked>
+</div>
+
+<div class="setting">
+<label>Save chat history</label>
+<input type="checkbox" id="chatSave" checked>
+</div>
+
+<div class="setting">
+<label>Clear chat</label>
+<button onclick="clearChat()">Clear</button>
+</div>
+
+</div>
+
+</div>
 
 <script>
 
-/* LOGIN */
+/* panels */
 
-const USERNAME="admin"
-const PASSWORD="1234"
+function showPanel(id){
 
-function login(){
-
-let u=document.getElementById("user").value
-let p=document.getElementById("pass").value
-
-if(u===USERNAME && p===PASSWORD){
-
-document.getElementById("login").style.display="none"
-document.getElementById("dashboard").style.display="block"
-
-}else{
-
-alert("Wrong login")
+document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"))
+document.getElementById(id).classList.add("active")
 
 }
 
+/* theme */
+
+function toggleTheme(){
+
+document.body.classList.toggle("light")
+
 }
 
-/* PANEL OPEN/CLOSE */
-
-function openPanel(id){
-document.getElementById(id).style.display="block"
-}
-
-function closePanel(id){
-document.getElementById(id).style.display="none"
-}
-
-/* NOTES */
+/* notes */
 
 function saveNotes(){
 
-localStorage.setItem("notes",
-document.getElementById("notesBox").value)
-
-alert("Saved!")
+localStorage.setItem("notes",document.getElementById("notesBox").value)
 
 }
 
 document.getElementById("notesBox").value=
 localStorage.getItem("notes")||""
 
-/* SCRIPT RUNNER */
+/* script runner */
 
 function runCode(){
 
-let code=document.getElementById("code").value
-
 try{
 
+let code=document.getElementById("code").value
 let result=eval(code)
-
 document.getElementById("output").innerText=result
 
 }catch(e){
@@ -276,15 +274,29 @@ document.getElementById("output").innerText=e
 
 }
 
+/* chat */
+
+function addMessage(text,type){
+
+let msg=document.createElement("div")
+msg.className="msg "+type
+msg.innerText=text
+
+document.getElementById("chat").appendChild(msg)
+
+}
+
 /* AI */
 
 async function askAI(){
 
 let input=document.getElementById("aiInput").value
 
-document.getElementById("aiOutput").innerText="Thinking..."
+if(!input) return
 
-try{
+addMessage(input,"user")
+
+document.getElementById("aiInput").value=""
 
 let res=await fetch("/ai",{
 
@@ -302,13 +314,15 @@ message:input
 
 let data=await res.json()
 
-document.getElementById("aiOutput").innerText=data.reply
-
-}catch(e){
-
-document.getElementById("aiOutput").innerText="AI failed"
+addMessage(data.reply,"ai")
 
 }
+
+/* clear chat */
+
+function clearChat(){
+
+document.getElementById("chat").innerHTML=""
 
 }
 
