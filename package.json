@@ -1,7 +1,9 @@
 {
-"name":"future-dashboard",
+"name":"home-dashboard",
 "type":"module",
 "dependencies":{
-"express":"^4.18.2"
+"express":"^4.18.2",
+"sqlite3":"^5.1.6",
+"sqlite":"^4.2.1"
 }
 }
